@@ -28,7 +28,7 @@ window.initComplexShapesGame = async function() {
         if (window.supabaseClient && window.currentUser) {
             const h = sessionStorage.getItem('target_hour') || "00";
             const { data } = await window.supabaseClient
-                .from('assignment')
+                .from('assignment7')
                 .select('ComplexShapes')
                 .eq('userName', window.currentUser)
                 .eq('hour', h)
@@ -370,7 +370,7 @@ window.checkComplexWin = function() {
         if (window.supabaseClient && window.currentUser) {
             const h = sessionStorage.getItem('target_hour') || "00";
             // FIX: Using .then()
-            window.supabaseClient.from('assignment')
+            window.supabaseClient.from('assignment7')
                 .update({ ComplexShapes: newVal })
                 .eq('userName', window.currentUser)
                 .eq('hour', h)
