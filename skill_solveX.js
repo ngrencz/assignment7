@@ -28,7 +28,7 @@ window.initSolveXGame = async function() {
         if (window.supabaseClient && window.currentUser) {
             const h = sessionStorage.getItem('target_hour') || "00";
             const { data } = await window.supabaseClient
-                .from('assignment')
+                .from('assignment7')
                 .select('SolveX')
                 .eq('userName', window.currentUser)
                 .eq('hour', h)
@@ -205,7 +205,7 @@ function updateSolveXScore(amount) {
 
     if (window.supabaseClient && window.currentUser) {
         const h = sessionStorage.getItem('target_hour') || "00";
-        window.supabaseClient.from('assignment')
+        window.supabaseClient.from('assignment7')
             .update({ SolveX: next })
             .eq('userName', window.currentUser)
             .eq('hour', h)
