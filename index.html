@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Portal | Login</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const SB_URL = "https://khazeoycsjdqnmwodncw.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoYXplb3ljc2pkcW5td29kbmN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MDMwOTMsImV4cCI6MjA3ODQ3OTA5M30.h-WabaGcQZ968sO2ImetccUaRihRFmO2mUKCdPiAbEI";
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+    </script>
+
+    <style>
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #f0f2f5; 
+            font-family: sans-serif;
+        }
+        .login-bubble {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 320px;
+        }
+        .field-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { 
+            width: 100%; 
+            padding: 10px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+
+<div class="login-bubble">
+    <h2 style="text-align: center; margin-top: 0;">Student Login</h2>
+    
+    <div class="field-group">
+        <label for="username-input">Name</label>
+        <input type="text" id="username-input" placeholder="Enter your name">
+    </div>
+
+    <div class="field-group">
+        <label>Class Period</label>
+        <select id="hour-select">
+            <option value="00">Guest</option>
+            <option value="01">01</option>
+            <option value="02">02</option>
+            <option value="03">03</option>
+            <option value="04">04</option>
+            <option value="05">05</option>
+            <option value="06">06</option>
+            <option value="07">07</option>
+        </select>
+    </div>
+
+    <div class="field-group">
+        <label>Assignment</label>
+        <select id="lesson-select">
+            <option value="C6Review">Chapter 6 Review</option>
+            <option value="7.1.1">Lesson 7.1.1 How can I represent data?</option>
+        </select>
+    </div>
+    
+    <button onclick="handleLogin()">Start Practice</button>
+</div>
+
+<script>
+    async function handleLogin() {
+        const user = document.getElementById('username-input').value.trim();
+        const hour = document.getElementById('hour-select').value;
+        const lesson = document.getElementById('lesson-select').value;
+
+        if (!user) {
+            alert("Please enter a username.");
+            return;
+        }
+
+        // Status Check: Check if they are already done
+        try {
+            const { data, error } = await supabaseClient
+                .from('assignment')
+                .select('*')
+                .eq('userName', user)
+                .eq('hour', hour)
+                .maybeSingle();
+
+            if (data && data[lesson] === true) {
+                alert(`Note: The assignment "${lesson}" is already marked as completed for this user.`);
+            }
+        } catch (err) {
+            console.error("Status check error:", err);
+        }
+
+        // --- THE FIX ---
+        // Save 'target_user' for the logic engine (assignment_hub.js)
+        sessionStorage.setItem('target_user', user);
+        // Save 'current_user' for the visual display (assignment.html)
+        sessionStorage.setItem('current_user', user);
+        
+        sessionStorage.setItem('target_hour', hour);
+        sessionStorage.setItem('target_lesson', lesson);
+        sessionStorage.setItem('total_work_time', 0);
+
+        window.location.href = 'assignment.html';
+    }
+</script>
+
+</body>
+</html>

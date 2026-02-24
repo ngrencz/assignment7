@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Assignment | Learning Portal</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script src="skill_transformation.js"></script>
+    <script src="skill_linearsystem.js"></script>
+    <script src="skill_figuregrowth.js"></script>
+    <script src="skill_solveX.js"></script>
+    <script src="skill_boxplot.js"></script>
+    <script src="skill_similarity.js"></script>
+    <script src="skill_complexshapes.js"></script>
+    <script src="skill_graphing.js"></script>
+    <script src="skill_diamondmath.js"></script>
+    <script src="skill_linear.js"></script>
+    <script src="skill_piechart.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="size-overlay">
+    <div class="overlay-content">
+        <h1>Please Maximize Your Window</h1>
+        <p>To keep things fair, practice must be done in a full-sized window.</p>
+    </div>
+</div>
+
+<div id="header">
+    <div class="header-left">
+        <span id="user-display" class="stats-pill">User</span> 
+        <span id="lesson-display" class="lesson-pill">Lesson</span>
+        <span id="timer-state-pill" class="stats-pill" style="margin-left:10px; font-size: 0.7rem; color: white;">INITIALIZING</span>
+    </div>
+    <div class="header-right">
+        <span id="version-tag" style="font-size: 0.7rem; color: var(--gray-med); margin-right: 15px; vertical-align: middle;">
+            v1.0.2
+        </span>
+        <span class="timer-label">Session Timer:</span>
+        <span id="debug-total-time" class="timer-value">00:00</span>
+    </div>
+</div>
+
+<main class="container">
+    <div id="work-area">
+        <div class="question-header">
+            <h2 id="q-title">Loading Practice...</h2>
+            <div id="progress-indicator"></div>
+        </div>
+
+        <div id="q-content">
+            <p class="loading-text">Preparing your customized lesson...</p>
+        </div>
+
+        <div id="feedback-box" style="display: none;"></div>
+    </div>
+</main>
+
+<script>
+    // Immediate UI Setup
+    document.addEventListener('DOMContentLoaded', () => {
+        const user = sessionStorage.getItem('current_user');
+        const lesson = sessionStorage.getItem('target_lesson');
+        
+        if (user) document.getElementById('user-display').innerText = user;
+        if (lesson) document.getElementById('lesson-display').innerText = "Lesson " + lesson;
+        
+        if ((!user || !lesson) && !window.location.pathname.endsWith('index.html')) {
+            window.location.href = 'index.html';
+        }
+    });
+</script>
+
+<script src="assignment_hub.js"></script>
+
+</body>
+</html>
