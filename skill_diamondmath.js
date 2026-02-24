@@ -36,7 +36,7 @@ window.initDiamondMath = async function() {
             console.log(`[DiamondMath] Fetching from Supabase for User: "${window.currentUser}", Hour: "${currentHour}"`);
             
             const { data, error } = await window.supabaseClient
-                .from('assignment')
+                .from('assignment7')
                 .select('DiamondMath')
                 .eq('userName', window.currentUser)
                 .eq('hour', currentHour)
@@ -289,7 +289,7 @@ window.checkDiamondWin = async function() {
         // --- HUB FIX: Non-blocking background sync ---
         if (window.supabaseClient && window.currentUser) {
             const hour = sessionStorage.getItem('target_hour') || "00";
-            window.supabaseClient.from('assignment')
+            window.supabaseClient.from('assignment7')
                 .update({ DiamondMath: nextScore })
                 .eq('userName', window.currentUser)
                 .eq('hour', hour)
