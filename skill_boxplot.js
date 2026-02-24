@@ -29,7 +29,7 @@
             const currentHour = sessionStorage.getItem('target_hour') || "00";
             
             const { data } = await window.supabaseClient
-                .from('assignment')
+                .from('assignment7')
                 .select('BoxPlot, bp_median, bp_mean, bp_range, bp_quartiles, bp_iqr')
                 .eq('userName', window.currentUser)
                 .eq('hour', currentHour)
@@ -255,7 +255,7 @@
             // --- HUB FIX: Background DB Sync (using .then) ---
             if (window.supabaseClient && window.currentUser) {
                 window.supabaseClient
-                    .from('assignment')
+                    .from('assignment7')
                     .update(updateObj)
                     .eq('userName', window.currentUser)
                     .eq('hour', currentHour)
@@ -298,7 +298,7 @@
             if (window.supabaseClient && window.currentUser) {
                 // Fire and forget using .then
                 window.supabaseClient
-                    .from('assignment')
+                    .from('assignment7')
                     .update({ 'BoxPlot': newMain })
                     .eq('userName', window.currentUser)
                     .eq('hour', currentHour)
