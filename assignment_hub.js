@@ -202,7 +202,8 @@ async function loadNextQuestion() {
             { id: 'BoxPlot', fn: typeof initBoxPlotGame !== 'undefined' ? initBoxPlotGame : null },
             { id: 'ComplexShapes', fn: typeof initComplexShapesGame !== 'undefined' ? initComplexShapesGame : null },
             { id: 'Graphing', fn: typeof initGraphingGame !== 'undefined' ? initGraphingGame : null },
-            { id: 'DiamondMath', fn: typeof initDiamondMath !== 'undefined' ? initDiamondMath : null }
+            { id: 'DiamondMath', fn: typeof initDiamondMath !== 'undefined' ? initDiamondMath : null },
+            { id: 'Prob522', fn: typeof initProbGame !== 'undefined' ? initProbGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -216,8 +217,7 @@ async function loadNextQuestion() {
             // The capability for a primary skill is here, just empty for now.
             if (!window.hasDonePrimaryLesson) {
                 window.hasDonePrimaryLesson = true;
-                
-                let primarySkillId = null; // <-- Set this to your new module ID later (e.g. 'Prob522')
+                let primarySkillId = 'Prob522';
                 
                 if (primarySkillId) {
                     const primarySkill = skillMap.find(s => s.id === primarySkillId);
