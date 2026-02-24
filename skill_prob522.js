@@ -1,8 +1,7 @@
 /**
  * skill_prob522.js
  * - 7th Grade Probability Comparisons (Lesson 5.2.2)
- * - Generates scenarios for Numbers, Dice, Cards, and Spinners.
- * - Requires students to calculate probability as fractions and compare them.
+ * - UPDATED: Sub-skill tracking & Adaptive Weighted Question Selection
  */
 
 var probData = {
@@ -10,9 +9,11 @@ var probData = {
     maxRounds: 3,
     score: 0,
     errors: 0,
+    sessionTypes: [], 
+    currentType: "", 
     g1: { text: "", n: 0, d: 1, val: 0 },
     g2: { text: "", n: 0, d: 1, val: 0 },
-    winner: "" // '1', '2', or 'equal'
+    winner: "" 
 };
 
 window.initProbGame = async function() {
@@ -30,23 +31,50 @@ window.initProbGame = async function() {
             const h = sessionStorage.getItem('target_hour') || "00";
             const { data } = await window.supabaseClient
                 .from('assignment7')
-                .select('Prob522')
+                .select('Prob522, prob_number, prob_dice, prob_card, prob_spinner')
                 .eq('userName', window.currentUser)
                 .eq('hour', h)
                 .maybeSingle();
             
-            probData.score = data ? (data.Prob522 || 0) : 0;
-            window.userMastery.Prob522 = probData.score;
+            if (data) {
+                window.userMastery = { ...window.userMastery, ...data };
+                probData.score = data.Prob522 || 0;
+            }
         }
     } catch (e) {
         console.warn("Probability DB sync error, falling back to local state.");
+    }
+
+    // --- ADAPTIVE WEIGHTED SELECTION ---
+    const allTypes = ['number', 'dice', 'card', 'spinner'];
+    let weightedBag = [];
+    
+    allTypes.forEach(type => {
+        let col = 'prob_' + type;
+        let score = window.userMastery[col] || 0;
+        // Low score = 4 tickets, Med = 2 tickets, Mastered = 1 ticket
+        let weight = score <= 3 ? 4 : (score <= 7 ? 2 : 1);
+        for (let i = 0; i < weight; i++) {
+            weightedBag.push(type);
+        }
+    });
+
+    // Pick 3 unique types for this session
+    probData.sessionTypes = [];
+    while (probData.sessionTypes.length < 3) {
+        let r = Math.floor(Math.random() * weightedBag.length);
+        let selected = weightedBag[r];
+        if (!probData.sessionTypes.includes(selected)) {
+            probData.sessionTypes.push(selected);
+        }
     }
 
     startProbRound();
 };
 
 function startProbRound() {
-    generateProbProblem();
+    probData.currentType = probData.sessionTypes[probData.round - 1];
+    generateProbProblem(probData.currentType);
     renderProbUI();
 }
 
@@ -74,10 +102,7 @@ function countMultiples(mult, min, max) {
 }
 
 // --- PROBLEM GENERATORS ---
-function generateProbProblem() {
-    const types = ['number', 'dice', 'card', 'spinner'];
-    const type = types[Math.floor(Math.random() * types.length)];
-
+function generateProbProblem(type) {
     if (type === 'number') {
         const tasks = [
             { t: "prime number", fn: countPrimes },
@@ -88,13 +113,11 @@ function generateProbProblem() {
         let t1 = tasks[Math.floor(Math.random() * tasks.length)];
         let t2 = tasks[Math.floor(Math.random() * tasks.length)];
 
-        // Game 1 limits
         let min1 = 1, max1 = [20, 25, 30][Math.floor(Math.random() * 3)];
         probData.g1.text = `Picking a ${t1.t} from the integers between ${min1} and ${max1}`;
         probData.g1.n = t1.fn(min1, max1);
         probData.g1.d = max1 - min1 + 1;
 
-        // Game 2 limits
         let min2 = [1, 21][Math.floor(Math.random() * 2)];
         let max2 = min2 === 1 ? [40, 50][Math.floor(Math.random() * 2)] : 40;
         probData.g2.text = `Picking a ${t2.t} from the integers between ${min2} and ${max2}`;
@@ -106,7 +129,7 @@ function generateProbProblem() {
             { text: "Rolling an even number on one 6-sided die", n: 3, d: 6 },
             { text: "Rolling a 5 or 6 on one 6-sided die", n: 2, d: 6 },
             { text: "Rolling a sum of 7 on two 6-sided dice", n: 6, d: 36 },
-            { text: "Rolling a sum greater than 9 on two 6-sided dice", n: 6, d: 36 }, // 10,11,12
+            { text: "Rolling a sum greater than 9 on two 6-sided dice", n: 6, d: 36 }, 
             { text: "Rolling doubles (matching numbers) on two 6-sided dice", n: 6, d: 36 }
         ];
         let p1 = pool[Math.floor(Math.random() * pool.length)];
@@ -122,7 +145,7 @@ function generateProbProblem() {
             { text: "Drawing a Face card (J, Q, K) from a standard 52-card deck", n: 12, d: 52 },
             { text: "Drawing an Ace from a standard 52-card deck", n: 4, d: 52 },
             { text: "Drawing a Red card from a standard 52-card deck", n: 26, d: 52 },
-            { text: "Drawing a number card less than 5 (Aces excluded) from a 52-card deck", n: 12, d: 52 } // 2,3,4 of four suits
+            { text: "Drawing a number card less than 5 (Aces excluded) from a 52-card deck", n: 12, d: 52 } 
         ];
         let p1 = pool[Math.floor(Math.random() * pool.length)];
         let p2;
@@ -217,7 +240,6 @@ function renderProbUI() {
 window.checkProbAnswers = function() {
     const feedback = document.getElementById('prob-feedback');
     
-    // Parse user inputs
     const n1 = parseInt(document.getElementById('g1-num').value);
     const d1 = parseInt(document.getElementById('g1-den').value);
     const n2 = parseInt(document.getElementById('g2-num').value);
@@ -236,7 +258,6 @@ window.checkProbAnswers = function() {
         return;
     }
 
-    // Cross-multiplication check to allow simplified or unsimplified fractions
     const game1Correct = (n1 * probData.g1.d === probData.g1.n * d1);
     const game2Correct = (n2 * probData.g2.d === probData.g2.n * d2);
     const winnerCorrect = (wSelection === probData.winner);
@@ -246,7 +267,9 @@ window.checkProbAnswers = function() {
         feedback.innerText = "✅ Correct Analysis!";
         
         let adjustment = probData.errors === 0 ? 1 : 0;
-        updateProbScore(adjustment);
+        
+        // Pass the sub-skill name to be tracked
+        updateProbScore('prob_' + probData.currentType, adjustment);
 
         probData.round++;
         probData.errors = 0;
@@ -267,16 +290,24 @@ window.checkProbAnswers = function() {
     }
 };
 
-function updateProbScore(amt) {
+function updateProbScore(subCol, amt) {
     if (!window.userMastery) window.userMastery = {};
-    let current = window.userMastery.Prob522 || 0;
-    let next = Math.max(0, Math.min(10, current + amt));
-    window.userMastery.Prob522 = next;
+    
+    // 1. Update the specific sub-skill (e.g. prob_dice)
+    let curSub = window.userMastery[subCol] || 0;
+    let nextSub = Math.max(0, Math.min(10, curSub + amt));
+    window.userMastery[subCol] = nextSub;
+
+    // 2. Update the main aggregated mastery score
+    let curMain = window.userMastery.Prob522 || 0;
+    let nextMain = Math.max(0, Math.min(10, curMain + amt));
+    window.userMastery.Prob522 = nextMain;
 
     if (window.supabaseClient && window.currentUser) {
         const h = sessionStorage.getItem('target_hour') || "00";
         window.supabaseClient.from('assignment7')
-            .update({ Prob522: next })
+            // Send both updates to the database simultaneously
+            .update({ [subCol]: nextSub, Prob522: nextMain }) 
             .eq('userName', window.currentUser)
             .eq('hour', h)
             .then(({error}) => { if (error) console.error("Score update fail:", error); });
