@@ -205,7 +205,8 @@ async function loadNextQuestion() {
             { id: 'DiamondMath', fn: typeof initDiamondMath !== 'undefined' ? initDiamondMath : null },
             { id: 'Prob522', fn: typeof initProbGame !== 'undefined' ? initProbGame : null },
             { id: 'ProbOr', fn: typeof initProbOrGame !== 'undefined' ? initProbOrGame : null },
-            { id: 'Substitution', fn: typeof initSubstitutionGame !== 'undefined' ? initSubstitutionGame : null }
+            { id: 'Substitution', fn: typeof initSubstitutionGame !== 'undefined' ? initSubstitutionGame : null },
+            { id: 'ShapeArea', fn: typeof initShapeAreaGame !== 'undefined' ? initShapeAreaGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
