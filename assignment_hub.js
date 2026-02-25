@@ -206,7 +206,8 @@ async function loadNextQuestion() {
             { id: 'Prob522', fn: typeof initProbGame !== 'undefined' ? initProbGame : null },
             { id: 'ProbOr', fn: typeof initProbOrGame !== 'undefined' ? initProbOrGame : null },
             { id: 'Substitution', fn: typeof initSubstitutionGame !== 'undefined' ? initSubstitutionGame : null },
-            { id: 'ShapeArea', fn: typeof initShapeAreaGame !== 'undefined' ? initShapeAreaGame : null }
+            { id: 'ShapeArea', fn: typeof initShapeAreaGame !== 'undefined' ? initShapeAreaGame : null },
+            { id: 'DependentProb', fn: typeof initDependentGame !== 'undefined' ? initDependentGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -215,12 +216,21 @@ async function loadNextQuestion() {
             return;
         }
 
-        if (window.targetLesson === '5.2.2') {
+        // --- NEW: Dictionary-Based Routing (Future-Proofed) ---
+        const lessonAnchors = {
+            '5.2.2': 'Prob522',
+            '5.2.3': 'DependentProb',
+            '5.2.4': 'SomeFutureSkillName' // Ready for your next module!
+        };
+
+        // Check if the lesson exists in our dictionary
+        if (lessonAnchors[window.targetLesson]) {
             
-            // The capability for a primary skill is here, just empty for now.
             if (!window.hasDonePrimaryLesson) {
                 window.hasDonePrimaryLesson = true;
-                let primarySkillId = 'Prob522';
+                
+                // Automatically grab the correct starting skill from the dictionary
+                let primarySkillId = lessonAnchors[window.targetLesson]; 
                 
                 if (primarySkillId) {
                     const primarySkill = skillMap.find(s => s.id === primarySkillId);
