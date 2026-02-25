@@ -1,39 +1,49 @@
 /**
  * skill_algebratiles.js
  * - Generates Area and Perimeter expressions from visual tiles.
- * - Allows full string inputs (e.g., "x^2 + 2x + 3") and parses them.
- * - Handles the physical geometric perimeter trick when x < 1.
+ * - Allows full string inputs and parses them automatically.
+ * - Tracks 3 sub-skills: at_area, at_perim, and at_eval.
  * - Fully integrated with assignment_hub.js and Supabase assignment7.
  */
 
-console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
+console.log("🚀 skill_algebratiles.js is LIVE - Sub-skills & Parsing");
 
 (function() {
     let atData = {};
     let atRound = 1;
     const totalAtRounds = 3;
+    
+    // Track errors for the current round to manage scoring
+    let roundErrors = { area: 0, perim: 0, eval: 0 };
+    let sessionCorrectFirstTry = 0; // Tracks perfect rounds for main mastery
 
     window.initAlgebraTiles = async function() {
-        if (!document.getElementById('q-content')) return;
+        const qContent = document.getElementById('q-content');
+        if (!qContent) return;
 
         window.isCurrentQActive = true;
         window.currentQSeconds = 0;
         atRound = 1;
+        sessionCorrectFirstTry = 0;
 
         if (!window.userMastery) window.userMastery = {};
 
         try {
             if (window.supabaseClient && window.currentUser) {
                 const currentHour = sessionStorage.getItem('target_hour') || "00";
+                
+                // Fetch main skill AND sub-skills
                 const { data, error } = await window.supabaseClient
                     .from('assignment7')
-                    .select('AlgebraTiles')
+                    .select('AlgebraTiles, at_area, at_perim, at_eval')
                     .eq('userName', window.currentUser)
                     .eq('hour', currentHour)
                     .maybeSingle();
                 
                 if (error) console.error("[AlgebraTiles] Supabase fetch error:", error);
-                window.userMastery.AlgebraTiles = data?.AlgebraTiles || 0;
+                
+                // Safely merge DB data into local mastery
+                if (data) window.userMastery = { ...window.userMastery, ...data };
             }
         } catch (e) { 
             console.error("[AlgebraTiles] Init error:", e); 
@@ -43,6 +53,7 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
     };
 
     function startAtRound() {
+        roundErrors = { area: 0, perim: 0, eval: 0 };
         generateAtProblem();
         renderAtUI();
     }
@@ -90,14 +101,10 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
         actualPerimeterEval = parseFloat(actualPerimeterEval.toFixed(2));
 
         atData = {
-            x2: x2Count,
-            x: xCount,
-            c: totalUnitTiles,
-            pX: pX,
-            pC: pC,
+            x2: x2Count, x: xCount, c: totalUnitTiles,
+            pX: pX, pC: pC,
             unitColumns: unitColumns,
-            evalX: evalX,
-            evalP: actualPerimeterEval
+            evalX: evalX, evalP: actualPerimeterEval
         };
     }
 
@@ -131,11 +138,11 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
                     <div style="margin-bottom: 15px; font-size: 18px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
                         <strong>3. Evaluate:</strong> If x = ${atData.evalX}, what is the physical perimeter?<br>
                         <div style="margin-top: 8px; display:flex; gap:10px; align-items:center;">
-                            Perimeter = <input type="number" id="ans-eval" step="0.1" placeholder="?" autocomplete="off" style="width:80px; height:40px; text-align:center; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
+                            Perimeter = <input type="number" id="ans-eval" step="0.1" placeholder="?" autocomplete="off" style="width:100px; height:40px; text-align:center; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
                         </div>
                     </div>
 
-                    <button onclick="checkAlgebraTiles()" style="width:100%; height:45px; background:#1e293b; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size: 16px;">CHECK ANSWERS</button>
+                    <button onclick="checkAlgebraTiles()" id="at-check-btn" style="width:100%; height:45px; background:#1e293b; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size: 16px;">CHECK ANSWERS</button>
                 </div>
             </div>
             <div id="at-flash" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.8); color:white; padding:20px 40px; border-radius:12px; font-size:24px; font-weight:bold; display:none; z-index:100;"></div>
@@ -193,20 +200,17 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
         }
     }
 
-    // Lightweight algebraic parser to extract term coefficients
     function parseExpression(str) {
         let counts = { x2: 0, x: 0, c: 0 };
         if (!str) return counts;
         
-        // Remove all spaces and force lowercase
         let clean = str.replace(/\s+/g, '').toLowerCase();
-        
-        // Split by the addition operator (since these area/perimeters are always positive sums)
         let terms = clean.split('+');
         
         for (let term of terms) {
-            if (term.includes('x^2')) {
-                let coeff = term.replace('x^2', '');
+            // Handles both typed 'x^2' and copy-pasted 'x²'
+            if (term.includes('x^2') || term.includes('x²')) { 
+                let coeff = term.replace(/x\^2|x²/g, '');
                 counts.x2 += (coeff === '' ? 1 : parseInt(coeff));
             } else if (term.includes('x')) {
                 let coeff = term.replace('x', '');
@@ -219,8 +223,6 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
     }
 
     window.checkAlgebraTiles = function() {
-        let allCorrect = true;
-
         const elArea = document.getElementById('ans-area');
         const elPerim = document.getElementById('ans-perim');
         const elEval = document.getElementById('ans-eval');
@@ -229,47 +231,81 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
 
         const parsedArea = parseExpression(elArea.value);
         const parsedPerim = parseExpression(elPerim.value);
-        
-        // 1. Check Area Expression
-        if (parsedArea.x2 === atData.x2 && parsedArea.x === atData.x && parsedArea.c === atData.c) {
-            elArea.style.backgroundColor = "#dcfce7"; elArea.style.borderColor = "#22c55e";
-        } else {
-            allCorrect = false;
-            elArea.style.backgroundColor = "#fee2e2"; elArea.style.borderColor = "#ef4444";
-        }
-
-        // 2. Check Perimeter Expression
-        // Note: x^2 count should be 0 for perimeter of these shapes
-        if (parsedPerim.x2 === 0 && parsedPerim.x === atData.pX && parsedPerim.c === atData.pC) {
-            elPerim.style.backgroundColor = "#dcfce7"; elPerim.style.borderColor = "#22c55e";
-        } else {
-            allCorrect = false;
-            elPerim.style.backgroundColor = "#fee2e2"; elPerim.style.borderColor = "#ef4444";
-        }
-
-        // 3. Check Evaluated Perimeter Number
         const evalVal = elEval.value.trim() === "" ? NaN : parseFloat(elEval.value);
-        if (!isNaN(evalVal) && Math.abs(evalVal - atData.evalP) < 0.05) {
-            elEval.style.backgroundColor = "#dcfce7"; elEval.style.borderColor = "#22c55e";
+
+        // Evaluate truth
+        const areaCorrect = (parsedArea.x2 === atData.x2 && parsedArea.x === atData.x && parsedArea.c === atData.c);
+        const perimCorrect = (parsedPerim.x2 === 0 && parsedPerim.x === atData.pX && parsedPerim.c === atData.pC);
+        const evalCorrect = (!isNaN(evalVal) && Math.abs(evalVal - atData.evalP) < 0.05);
+
+        let updateObj = {};
+
+        // 1. Process Area
+        if (areaCorrect) {
+            elArea.style.backgroundColor = "#dcfce7"; elArea.style.borderColor = "#22c55e";
+            elArea.disabled = true; // Lock it in
+            if (roundErrors.area === 0) { // Award point if first try
+                window.userMastery.at_area = Math.min(10, (window.userMastery.at_area || 0) + 1);
+                updateObj.at_area = window.userMastery.at_area;
+            }
+            roundErrors.area = -1; // Flag as complete
         } else {
-            allCorrect = false;
-            elEval.style.backgroundColor = "#fee2e2"; elEval.style.borderColor = "#ef4444";
+            if (roundErrors.area !== -1) {
+                roundErrors.area++;
+                elArea.style.backgroundColor = "#fee2e2"; elArea.style.borderColor = "#ef4444";
+            }
         }
 
-        if (allCorrect) {
-            showAtFlash("Correct!", "success");
+        // 2. Process Perimeter
+        if (perimCorrect) {
+            elPerim.style.backgroundColor = "#dcfce7"; elPerim.style.borderColor = "#22c55e";
+            elPerim.disabled = true;
+            if (roundErrors.perim === 0) {
+                window.userMastery.at_perim = Math.min(10, (window.userMastery.at_perim || 0) + 1);
+                updateObj.at_perim = window.userMastery.at_perim;
+            }
+            roundErrors.perim = -1;
+        } else {
+            if (roundErrors.perim !== -1) {
+                roundErrors.perim++;
+                elPerim.style.backgroundColor = "#fee2e2"; elPerim.style.borderColor = "#ef4444";
+            }
+        }
+
+        // 3. Process Eval
+        if (evalCorrect) {
+            elEval.style.backgroundColor = "#dcfce7"; elEval.style.borderColor = "#22c55e";
+            elEval.disabled = true;
+            if (roundErrors.eval === 0) {
+                window.userMastery.at_eval = Math.min(10, (window.userMastery.at_eval || 0) + 1);
+                updateObj.at_eval = window.userMastery.at_eval;
+            }
+            roundErrors.eval = -1;
+        } else {
+            if (roundErrors.eval !== -1) {
+                roundErrors.eval++;
+                elEval.style.backgroundColor = "#fee2e2"; elEval.style.borderColor = "#ef4444";
+            }
+        }
+
+        // Background sync any newly earned sub-skill points immediately
+        if (Object.keys(updateObj).length > 0 && window.supabaseClient && window.currentUser) {
+            const hour = sessionStorage.getItem('target_hour') || "00";
+            window.supabaseClient.from('assignment7')
+                .update(updateObj)
+                .eq('userName', window.currentUser)
+                .eq('hour', hour)
+                .then(({error}) => { if (error) console.error("[AlgebraTiles] Sub-skill Update Error:", error); });
+        }
+
+        // Check for round completion
+        if (areaCorrect && perimCorrect && evalCorrect) {
+            document.getElementById('at-check-btn').disabled = true;
+            showAtFlash("Round Complete!", "success");
             
-            let current = Number(window.userMastery.AlgebraTiles) || 0;
-            let nextScore = Math.min(10, current + 1);
-            window.userMastery.AlgebraTiles = nextScore;
-            
-            if (window.supabaseClient && window.currentUser) {
-                const hour = sessionStorage.getItem('target_hour') || "00";
-                window.supabaseClient.from('assignment7')
-                    .update({ AlgebraTiles: nextScore })
-                    .eq('userName', window.currentUser)
-                    .eq('hour', hour)
-                    .then(({error}) => { if (error) console.error("[AlgebraTiles] Update Error:", error); });
+            // Check if the whole round was perfect to boost the main mastery score
+            if (roundErrors.area === -1 && roundErrors.perim === -1 && roundErrors.eval === -1) {
+                sessionCorrectFirstTry++;
             }
 
             atRound++;
@@ -278,7 +314,7 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
                 else startAtRound();
             }, 1200);
         } else {
-            showAtFlash("Check your work.", "error");
+            showAtFlash("Keep trying.", "error");
         }
     };
 
@@ -288,12 +324,32 @@ console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
         if (!qContent) return;
         
         qContent.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px;">
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px; animation: fadeIn 0.5s;">
                 <div style="font-size:60px;">🧱</div>
                 <h2 style="color:#1e293b; margin:10px 0;">Tile Set Complete!</h2>
                 <p style="color:#64748b; font-size:16px;">Skills updated.</p>
             </div>
         `;
+
+        // Process Main Mastery Adjustment
+        let mainAdjustment = 0;
+        if (sessionCorrectFirstTry === totalAtRounds) mainAdjustment = 1;
+        else if (sessionCorrectFirstTry <= 1) mainAdjustment = -1;
+
+        if (mainAdjustment !== 0) {
+            const currentMain = window.userMastery?.['AlgebraTiles'] || 0;
+            const newMain = Math.max(0, Math.min(10, currentMain + mainAdjustment));
+            window.userMastery['AlgebraTiles'] = newMain;
+
+            if (window.supabaseClient && window.currentUser) {
+                const hour = sessionStorage.getItem('target_hour') || "00";
+                window.supabaseClient.from('assignment7')
+                    .update({ 'AlgebraTiles': newMain })
+                    .eq('userName', window.currentUser)
+                    .eq('hour', hour)
+                    .then(({ error }) => { if (error) console.error("[AlgebraTiles] Main Score Error:", error); });
+            }
+        }
 
         setTimeout(() => { 
             if (typeof window.loadNextQuestion === 'function') {
