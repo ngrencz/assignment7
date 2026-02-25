@@ -1,11 +1,12 @@
 /**
  * skill_algebratiles.js
  * - Generates Area and Perimeter expressions from visual tiles.
+ * - Allows full string inputs (e.g., "x^2 + 2x + 3") and parses them.
  * - Handles the physical geometric perimeter trick when x < 1.
  * - Fully integrated with assignment_hub.js and Supabase assignment7.
  */
 
-console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
+console.log("🚀 skill_algebratiles.js is LIVE - Full Expression Parsing");
 
 (function() {
     let atData = {};
@@ -49,7 +50,6 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
     function generateAtProblem() {
         const lvl = Number(window.userMastery.AlgebraTiles) || 0;
         
-        // Include x^2 tiles if mastery is high enough, or randomly
         const allowX2 = lvl >= 3; 
         const x2Count = allowX2 ? Math.floor(Math.random() * 3) : 0;
         const xCount = Math.floor(Math.random() * 4) + 1;
@@ -65,23 +65,18 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
 
         const totalUnitTiles = unitColumns.reduce((sum, val) => sum + val, 0);
 
-        // Coefficients
         const pX = (2 * x2Count) + 2;
         const pC = 2 * (xCount + numUnitColumns);
 
-        // Determine substitution x-value (25% chance to test the x=0.5 trick)
         const maxUnitHeight = unitColumns[0];
         let evalX;
         if (Math.random() < 0.25) {
-            // Trick value (e.g., 0.5)
             evalX = Math.max(0.1, Math.floor(Math.random() * (maxUnitHeight * 10)) / 10);
             if (evalX >= maxUnitHeight) evalX = maxUnitHeight - 0.5;
         } else {
-            // Normal integer value
             evalX = Math.floor(Math.random() * 8) + maxUnitHeight;
         }
 
-        // Calculate actual physical perimeter
         let actualPerimeterEval;
         if (evalX >= maxUnitHeight) {
             actualPerimeterEval = (pX * evalX) + pC;
@@ -92,7 +87,6 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
             const drop = maxUnitHeight - rightEdge;
             actualPerimeterEval = evalX + rightEdge + (2 * topBottomWidth) + rise + drop;
         }
-        // Round to 2 decimals to prevent floating point UI bugs
         actualPerimeterEval = parseFloat(actualPerimeterEval.toFixed(2));
 
         atData = {
@@ -113,9 +107,6 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
 
         document.getElementById('q-title').innerText = `Algebra Tiles (Round ${atRound}/${totalAtRounds})`;
 
-        // Helper to generate consistent input boxes
-        const makeInput = (id) => `<input type="number" id="ans-${id}" step="0.1" placeholder="?" autocomplete="off" style="width:50px; height:30px; text-align:center; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">`;
-
         qContent.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; gap: 20px;">
                 <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; width: 100%; text-align: center;">
@@ -125,22 +116,22 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
                 <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; width: 100%; max-width: 500px;">
                     <div style="margin-bottom: 15px; font-size: 18px;">
                         <strong>1. Area Expression:</strong><br>
-                        <div style="margin-top: 8px; display:flex; gap:10px; align-items:center;">
-                            ${makeInput('area-x2')} x² + ${makeInput('area-x')} x + ${makeInput('area-c')}
+                        <div style="margin-top: 8px;">
+                            <input type="text" id="ans-area" placeholder="e.g. x^2 + 3x + 2" autocomplete="off" style="width:100%; height:40px; padding: 0 10px; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
                         </div>
                     </div>
                     
                     <div style="margin-bottom: 15px; font-size: 18px;">
                         <strong>2. Perimeter Expression:</strong><br>
-                        <div style="margin-top: 8px; display:flex; gap:10px; align-items:center;">
-                            ${makeInput('perim-x')} x + ${makeInput('perim-c')}
+                        <div style="margin-top: 8px;">
+                            <input type="text" id="ans-perim" placeholder="e.g. 2x + 6" autocomplete="off" style="width:100%; height:40px; padding: 0 10px; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
                         </div>
                     </div>
 
                     <div style="margin-bottom: 15px; font-size: 18px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
                         <strong>3. Evaluate:</strong> If x = ${atData.evalX}, what is the physical perimeter?<br>
                         <div style="margin-top: 8px; display:flex; gap:10px; align-items:center;">
-                            Perimeter = ${makeInput('eval-p')}
+                            Perimeter = <input type="number" id="ans-eval" step="0.1" placeholder="?" autocomplete="off" style="width:80px; height:40px; text-align:center; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
                         </div>
                     </div>
 
@@ -158,8 +149,8 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         
-        const u = 30; // 1 unit
-        const xLen = u * 3; // Length of x visually
+        const u = 30; 
+        const xLen = u * 3; 
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -202,34 +193,68 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
         }
     }
 
+    // Lightweight algebraic parser to extract term coefficients
+    function parseExpression(str) {
+        let counts = { x2: 0, x: 0, c: 0 };
+        if (!str) return counts;
+        
+        // Remove all spaces and force lowercase
+        let clean = str.replace(/\s+/g, '').toLowerCase();
+        
+        // Split by the addition operator (since these area/perimeters are always positive sums)
+        let terms = clean.split('+');
+        
+        for (let term of terms) {
+            if (term.includes('x^2')) {
+                let coeff = term.replace('x^2', '');
+                counts.x2 += (coeff === '' ? 1 : parseInt(coeff));
+            } else if (term.includes('x')) {
+                let coeff = term.replace('x', '');
+                counts.x += (coeff === '' ? 1 : parseInt(coeff));
+            } else {
+                counts.c += parseInt(term) || 0;
+            }
+        }
+        return counts;
+    }
+
     window.checkAlgebraTiles = function() {
         let allCorrect = true;
 
-        const checks = [
-            { id: 'area-x2', val: atData.x2 },
-            { id: 'area-x', val: atData.x },
-            { id: 'area-c', val: atData.c },
-            { id: 'perim-x', val: atData.pX },
-            { id: 'perim-c', val: atData.pC },
-            { id: 'eval-p', val: atData.evalP }
-        ];
+        const elArea = document.getElementById('ans-area');
+        const elPerim = document.getElementById('ans-perim');
+        const elEval = document.getElementById('ans-eval');
 
-        checks.forEach(check => {
-            const el = document.getElementById(`ans-${check.id}`);
-            if (!el) return;
-            
-            // Treat empty as 0 to prevent frustrating NaN errors
-            const userVal = el.value.trim() === "" ? 0 : parseFloat(el.value);
+        if (!elArea || !elPerim || !elEval) return;
 
-            if (Math.abs(userVal - check.val) > 0.05) {
-                allCorrect = false;
-                el.style.backgroundColor = "#fee2e2";
-                el.style.borderColor = "#ef4444";
-            } else {
-                el.style.backgroundColor = "#dcfce7";
-                el.style.borderColor = "#22c55e";
-            }
-        });
+        const parsedArea = parseExpression(elArea.value);
+        const parsedPerim = parseExpression(elPerim.value);
+        
+        // 1. Check Area Expression
+        if (parsedArea.x2 === atData.x2 && parsedArea.x === atData.x && parsedArea.c === atData.c) {
+            elArea.style.backgroundColor = "#dcfce7"; elArea.style.borderColor = "#22c55e";
+        } else {
+            allCorrect = false;
+            elArea.style.backgroundColor = "#fee2e2"; elArea.style.borderColor = "#ef4444";
+        }
+
+        // 2. Check Perimeter Expression
+        // Note: x^2 count should be 0 for perimeter of these shapes
+        if (parsedPerim.x2 === 0 && parsedPerim.x === atData.pX && parsedPerim.c === atData.pC) {
+            elPerim.style.backgroundColor = "#dcfce7"; elPerim.style.borderColor = "#22c55e";
+        } else {
+            allCorrect = false;
+            elPerim.style.backgroundColor = "#fee2e2"; elPerim.style.borderColor = "#ef4444";
+        }
+
+        // 3. Check Evaluated Perimeter Number
+        const evalVal = elEval.value.trim() === "" ? NaN : parseFloat(elEval.value);
+        if (!isNaN(evalVal) && Math.abs(evalVal - atData.evalP) < 0.05) {
+            elEval.style.backgroundColor = "#dcfce7"; elEval.style.borderColor = "#22c55e";
+        } else {
+            allCorrect = false;
+            elEval.style.backgroundColor = "#fee2e2"; elEval.style.borderColor = "#ef4444";
+        }
 
         if (allCorrect) {
             showAtFlash("Correct!", "success");
@@ -253,7 +278,7 @@ console.log("🚀 skill_algebratiles.js is LIVE - Hub Integrated");
                 else startAtRound();
             }, 1200);
         } else {
-            showAtFlash("Check your math.", "error");
+            showAtFlash("Check your work.", "error");
         }
     };
 
