@@ -207,7 +207,9 @@ async function loadNextQuestion() {
             { id: 'ProbOr', fn: typeof initProbOrGame !== 'undefined' ? initProbOrGame : null },
             { id: 'Substitution', fn: typeof initSubstitutionGame !== 'undefined' ? initSubstitutionGame : null },
             { id: 'ShapeArea', fn: typeof initShapeAreaGame !== 'undefined' ? initShapeAreaGame : null },
-            { id: 'DependentProb', fn: typeof initDependentGame !== 'undefined' ? initDependentGame : null }
+            { id: 'DependentProb', fn: typeof initDependentGame !== 'undefined' ? initDependentGame : null },
+            { id: 'SampleSpace', fn: typeof initSampleSpaceGame !== 'undefined' ? initSampleSpaceGame : null },
+            { id: 'AlgebraTiles', fn: typeof initSampleSpaceGame !== 'undefined' ? initAlgebraTiles : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
