@@ -210,7 +210,8 @@ async function loadNextQuestion() {
             { id: 'DependentProb', fn: typeof initDependentGame !== 'undefined' ? initDependentGame : null },
             { id: 'SampleSpace', fn: typeof initSampleSpaceGame !== 'undefined' ? initSampleSpaceGame : null },
             { id: 'AlgebraTiles', fn: typeof initAlgebraTiles !== 'undefined' ? initAlgebraTiles : null },
-            { id: 'SimplifyExpr', fn: typeof initSimplifyGame !== 'undefined' ? initSimplifyGame : null }
+            { id: 'SimplifyExpr', fn: typeof initSimplifyGame !== 'undefined' ? initSimplifyGame : null },
+            { id: 'ProbTable', fn: typeof initProbTableGame !== 'undefined' ? initProbTableGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -223,7 +224,7 @@ async function loadNextQuestion() {
         const lessonAnchors = {
             '5.2.2': 'Prob522',
             '5.2.3': 'DependentProb',
-            '5.2.4': 'SomeFutureSkillName' // Ready for your next module!
+            '5.2.4': 'ProbTable' // Ready for your next module!
         };
 
         // Check if the lesson exists in our dictionary
