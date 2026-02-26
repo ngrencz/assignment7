@@ -212,7 +212,8 @@ async function loadNextQuestion() {
             { id: 'AlgebraTiles', fn: typeof initAlgebraTiles !== 'undefined' ? initAlgebraTiles : null },
             { id: 'SimplifyExpr', fn: typeof initSimplifyGame !== 'undefined' ? initSimplifyGame : null },
             { id: 'ProbTable', fn: typeof initProbTableGame !== 'undefined' ? initProbTableGame : null },
-            { id: 'MixtureRatio', fn: typeof initMixtureRatioGame !== 'undefined' ? initMixtureRatioGame : null }
+            { id: 'MixtureRatio', fn: typeof initMixtureRatioGame !== 'undefined' ? initMixtureRatioGame : null },
+            { id: 'SpinnerFrac', fn: typeof initSpinnerFracGame !== 'undefined' ? initSpinnerFracGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
