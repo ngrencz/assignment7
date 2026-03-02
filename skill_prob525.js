@@ -1,18 +1,19 @@
 /**
  * skill_prob525.js
  * - 7th Grade: Probability of More Than Two Events (Lesson 5.2.5)
- * - SINGLE ROUND ONLY: Interactive Tree Builder followed by sequential questions.
+ * - SINGLE ROUND: Interactive Tree Builder followed by sequential questions.
+ * - NEW: Massively dynamic scenario generator for infinite replayability.
  * - Tracks primary skill (Prob525) and sub-skills (p3_total, p3_match, p3_diff, p3_fair)
  */
 
-console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
+console.log("🚀 skill_prob525.js - Dynamic Tree Builder is LIVE");
 
 (function() {
     let p525Data = {
-        step: 0, // 0-2: Tree Building, 3-6: Questions
+        step: 0, 
         errorsInCurrentStep: 0,
         scenario: {},
-        treeState: 0 // 0: Blank, 1: Level 1 drawn, 2: Level 2 drawn, 3: Full tree
+        treeState: 0 
     };
 
     window.initProb525Game = async function() {
@@ -46,39 +47,94 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
     };
 
     function generateScenario() {
-        const scenarios = [
+        // Massive template bank for infinite replayability
+        const templates = [
             {
-                context: "Scott is designing new ice cream flavors at Crazy Creations. He must choose one item from each category:",
-                c1Name: "Base Flavor", c1: ["Vanilla", "Chocolate"],
-                c2Name: "Mix-In", c2: ["Hazelnuts", "Sprinkles", "Toffee"],
-                c3Name: "Fruit Swirl", c3: ["Apricot", "Plum", "Berry", "Grape"]
+                context: "[Name] is designing a new ice cream treat. They must choose one item from each category:",
+                c1Name: "Base", c1Items: ["Vanilla", "Chocolate", "Strawberry", "Mint"],
+                c2Name: "Mix-In", c2Items: ["Hazelnuts", "Sprinkles", "Toffee", "Fudge", "Cookie Dough"],
+                c3Name: "Swirl", c3Items: ["Apricot", "Plum", "Berry", "Grape", "Caramel"]
             },
             {
-                context: "Maya is buying a custom bicycle. She must choose one option from each category to build her bike:",
-                c1Name: "Frame Style", c1: ["Mountain", "Road", "Cruiser"],
-                c2Name: "Color", c2: ["Red", "Blue"],
-                c3Name: "Accessory", c3: ["Basket", "Bell", "Lights"]
+                context: "[Name] is ordering a lunch combo. They must choose one item from each menu category:",
+                c1Name: "Main", c1Items: ["Burger", "Wrap", "Sandwich", "Salad", "Tacos"],
+                c2Name: "Side", c2Items: ["Fries", "Chips", "Apple", "Soup"],
+                c3Name: "Drink", c3Items: ["Water", "Juice", "Milk", "Soda", "Tea"]
             },
             {
-                context: "Jamal is ordering a lunch combo. He must choose one item from each menu category:",
-                c1Name: "Main", c1: ["Burger", "Wrap"],
-                c2Name: "Side", c2: ["Fries", "Chips", "Apple"],
-                c3Name: "Drink", c3: ["Water", "Juice", "Milk"]
+                context: "[Name] is building a custom bicycle. They must choose one option from each category:",
+                c1Name: "Frame", c1Items: ["Mountain", "Road", "Cruiser", "BMX"],
+                c2Name: "Color", c2Items: ["Red", "Blue", "Black", "Green", "Silver"],
+                c3Name: "Accessory", c3Items: ["Basket", "Bell", "Lights", "Pegs"]
+            },
+            {
+                context: "[Name] is packing a backpack for a hiking trip. They must choose one of each:",
+                c1Name: "Snack", c1Items: ["Trail Mix", "Granola", "Jerky", "Apple"],
+                c2Name: "Drink", c2Items: ["Water", "Sports Drink", "Juice", "Tea"],
+                c3Name: "Gear", c3Items: ["Compass", "Map", "Flashlight", "Binoculars"]
+            },
+            {
+                context: "[Name] is setting up a new video game character. They must pick one of each:",
+                c1Name: "Class", c1Items: ["Mage", "Warrior", "Rogue", "Archer"],
+                c2Name: "Weapon", c2Items: ["Sword", "Bow", "Staff", "Dagger"],
+                c3Name: "Pet", c3Items: ["Wolf", "Dragon", "Hawk", "Bear"]
             }
         ];
 
-        // Pick random scenario
-        let s = scenarios[Math.floor(Math.random() * scenarios.length)];
+        const names = ["Scott", "Maya", "Jamal", "Chloe", "Sam", "Olivia", "Marcus", "Elena", "Jordan", "Alex"];
         
-        let totalOutcomes = s.c1.length * s.c2.length * s.c3.length;
+        let t = templates[Math.floor(Math.random() * templates.length)];
+        let name = names[Math.floor(Math.random() * names.length)];
         
-        // Pick random targets for questions
-        let t1 = s.c1[Math.floor(Math.random() * s.c1.length)];
-        let t2 = s.c2[Math.floor(Math.random() * s.c2.length)];
-        let t3 = s.c3[Math.floor(Math.random() * s.c3.length)];
-        let diffT1 = s.c1.find(x => x !== t1);
+        // Randomly slice the item lists so the lengths are always different (between 2 and 4)
+        let l1 = Math.floor(Math.random() * 2) + 2; 
+        let l2 = Math.floor(Math.random() * 2) + 2; 
+        let l3 = Math.floor(Math.random() * 2) + 2;
+        // Occasional chance for a longer list if it won't crash the canvas height
+        if (l1 * l2 * l3 < 16 && Math.random() > 0.5) l3++; 
 
-        p525Data.scenario = { ...s, totalOutcomes, t1, t2, t3, diffT1 };
+        let c1 = [...t.c1Items].sort(() => 0.5 - Math.random()).slice(0, l1);
+        let c2 = [...t.c2Items].sort(() => 0.5 - Math.random()).slice(0, l2);
+        let c3 = [...t.c3Items].sort(() => 0.5 - Math.random()).slice(0, l3);
+
+        let totalOutcomes = l1 * l2 * l3;
+        
+        // Pick targets for questions
+        let t1 = c1[Math.floor(Math.random() * c1.length)];
+        let t2 = c2[Math.floor(Math.random() * c2.length)];
+        let t3 = c3[Math.floor(Math.random() * c3.length)];
+
+        // Dynamic Fairness Generation
+        let pB_Item;
+        let pB_Length;
+        let r = Math.random();
+        
+        // Player B might pick a winning condition from any of the three categories
+        if (r < 0.33) {
+            let remain = c1.filter(x => x !== t1);
+            pB_Item = remain[Math.floor(Math.random() * remain.length)];
+            pB_Length = l1;
+        } else if (r < 0.66) {
+            pB_Item = t2;
+            pB_Length = l2;
+        } else {
+            pB_Item = t3;
+            pB_Length = l3;
+        }
+
+        // It is only fair if Player B's category has the exact same number of options as Player A's category
+        let isFair = (l1 === pB_Length) ? 'Yes' : 'No';
+
+        let context = t.context.replace('[Name]', name);
+
+        p525Data.scenario = {
+            context,
+            c1Name: t.c1Name, c1,
+            c2Name: t.c2Name, c2,
+            c3Name: t.c3Name, c3,
+            totalOutcomes, t1, t2, t3,
+            pB_Item, isFair, pB_Length
+        };
     }
 
     function renderMainUI() {
@@ -92,15 +148,18 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         let c2List = s.c2.join(', ');
         let c3List = s.c3.join(', ');
 
+        // Dynamically scale canvas height so massive trees don't get squished
+        let canvasHeight = Math.max(400, s.totalOutcomes * 22);
+
         qContent.innerHTML = `
-            <div style="max-width: 800px; margin: 0 auto; animation: fadeIn 0.5s;">
+            <div style="max-width: 850px; margin: 0 auto; animation: fadeIn 0.5s;">
                 <div style="background:white; padding:15px 20px; border-radius:12px; border:1px solid #cbd5e1; margin-bottom:15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                     <p style="font-size:16px; color:#1e293b; margin:0 0 10px 0;"><strong>Scenario:</strong> ${s.context}</p>
                     <table style="width:100%; border-collapse: collapse; text-align:center; font-size:14px;">
                         <tr>
-                            <th style="border:1px solid #94a3b8; padding:8px; background:#f1f5f9; width:33%;">${s.c1Name}</th>
-                            <th style="border:1px solid #94a3b8; padding:8px; background:#f1f5f9; width:33%;">${s.c2Name}</th>
-                            <th style="border:1px solid #94a3b8; padding:8px; background:#f1f5f9; width:33%;">${s.c3Name}</th>
+                            <th style="border:1px solid #94a3b8; padding:8px; background:#f1f5f9; width:33%;">${s.c1Name} (${s.c1.length})</th>
+                            <th style="border:1px solid #94a3b8; padding:8px; background:#f1f5f9; width:33%;">${s.c2Name} (${s.c2.length})</th>
+                            <th style="border:1px solid #94a3b8; padding:8px; background:#f1f5f9; width:33%;">${s.c3Name} (${s.c3.length})</th>
                         </tr>
                         <tr>
                             <td style="border:1px solid #94a3b8; padding:8px;">${c1List}</td>
@@ -111,11 +170,11 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
                 </div>
 
                 <div style="display:flex; gap:20px; align-items:flex-start;">
-                    <div style="flex: 1.5; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px; text-align:center;">
-                        <canvas id="treeCanvas" width="450" height="400" style="max-width:100%; background:#f8fafc; border-radius:8px; border:1px dashed #cbd5e1;"></canvas>
+                    <div style="flex: 1.5; background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px; text-align:center; max-height: 500px; overflow-y: auto;">
+                        <canvas id="treeCanvas" width="450" height="${canvasHeight}" style="max-width:100%; background:#f8fafc; border-radius:8px; border:1px dashed #cbd5e1;"></canvas>
                     </div>
 
-                    <div id="interaction-panel" style="flex: 1; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px;">
+                    <div id="interaction-panel" style="flex: 1; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; position: sticky; top: 20px;">
                         </div>
                 </div>
             </div>
@@ -130,7 +189,7 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         let s = p525Data.scenario;
         let html = ``;
 
-        p525Data.errorsInCurrentStep = 0; // Reset errors for this step
+        p525Data.errorsInCurrentStep = 0; 
 
         if (p525Data.step === 0) {
             html = `
@@ -165,7 +224,7 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         } else if (p525Data.step === 3) {
             html = `
                 <h3 style="margin-top:0; color:#10b981;">Question A</h3>
-                <p style="font-size:14px;">Look at the ends of your completed tree. How many <strong>total combinations</strong> are possible?</p>
+                <p style="font-size:14px;">Look at the right edge of your completed tree. How many <strong>total combinations</strong> are possible?</p>
                 <div style="display:flex; gap:10px;">
                     <input type="number" id="ans-input" style="width:70px; padding:8px; text-align:center; font-size:16px; border:2px solid #cbd5e1; border-radius:6px;">
                     <button onclick="checkStep()" style="background:#10b981; color:white; border:none; border-radius:6px; padding:0 15px; font-weight:bold; cursor:pointer;">Submit</button>
@@ -175,7 +234,7 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         } else if (p525Data.step === 4) {
             html = `
                 <h3 style="margin-top:0; color:#10b981;">Question B</h3>
-                <p style="font-size:14px;">What is the probability of randomly creating exactly <strong>${s.t1} + ${s.t2} + ${s.t3}</strong>?</p>
+                <p style="font-size:14px;">What is the probability of randomly creating the exact combination: <strong>${s.t1} + ${s.t2} + ${s.t3}</strong>?</p>
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="display:flex; flex-direction:column; width:50px;">
                         <input type="number" id="ans-num" style="text-align:center; padding:5px; border:2px solid #cbd5e1; border-radius:4px;">
@@ -187,7 +246,6 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
                 <div id="step-feedback" style="margin-top:10px; font-weight:bold; font-size:14px;"></div>
             `;
         } else if (p525Data.step === 5) {
-            // How many paths start with t1? It's c2.length * c3.length
             html = `
                 <h3 style="margin-top:0; color:#10b981;">Question C</h3>
                 <p style="font-size:14px;">What is the probability of getting <strong>${s.t1}</strong> with ANY ${s.c2Name} and ANY ${s.c3Name}?</p>
@@ -204,7 +262,7 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         } else if (p525Data.step === 6) {
             html = `
                 <h3 style="margin-top:0; color:#8b5cf6;">Question D (Evaluation)</h3>
-                <p style="font-size:14px;">If a game says Player A wins if they get <strong>${s.t1}</strong>, and Player B wins if they get <strong>${s.diffT1}</strong>, is the game fair?</p>
+                <p style="font-size:14px;">A game says Player A wins if they get <strong>${s.t1}</strong>, and Player B wins if they get <strong>${s.pB_Item}</strong>. Is the game fair?</p>
                 <div style="display:flex; gap:10px; margin-top: 10px;">
                     <button onclick="checkFairness('Yes')" style="flex:1; background:white; color:#1e293b; border:2px solid #cbd5e1; border-radius:6px; padding:10px; font-weight:bold; cursor:pointer;">Yes</button>
                     <button onclick="checkFairness('No')" style="flex:1; background:white; color:#1e293b; border:2px solid #cbd5e1; border-radius:6px; padding:10px; font-weight:bold; cursor:pointer;">No</button>
@@ -225,7 +283,7 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         let s = p525Data.scenario;
-        let state = p525Data.treeState; // 0, 1, 2, or 3
+        let state = p525Data.treeState; 
 
         const startX = 20;
         const xOffsets = [startX, 120, 260, 400];
@@ -235,7 +293,6 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
 
-        // Root Node (Invisible, just a start point)
         let rootNode = { x: startX, y: h / 2 };
 
         if (state >= 1) {
@@ -246,10 +303,8 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
                 let x = xOffsets[1];
                 l1Nodes.push({x, y});
                 
-                // Draw Line
                 ctx.beginPath(); ctx.moveTo(rootNode.x, rootNode.y); ctx.lineTo(x - 15, y); ctx.strokeStyle = "#94a3b8"; ctx.stroke();
-                // Draw Text (Initial)
-                ctx.fillStyle = "#1e293b"; ctx.fillText(s.c1[i].charAt(0), x, y);
+                ctx.fillStyle = "#1e293b"; ctx.fillText(s.c1[i].substring(0, 3) + ".", x, y);
             }
 
             if (state >= 2) {
@@ -263,9 +318,8 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
                         let x = xOffsets[2];
                         l2Nodes.push({x, y});
                         
-                        // Line from parent
-                        ctx.beginPath(); ctx.moveTo(l1Nodes[i].x + 10, l1Nodes[i].y); ctx.lineTo(x - 15, y); ctx.strokeStyle = "#94a3b8"; ctx.stroke();
-                        ctx.fillStyle = "#1e293b"; ctx.fillText(s.c2[j].charAt(0), x, y);
+                        ctx.beginPath(); ctx.moveTo(l1Nodes[i].x + 20, l1Nodes[i].y); ctx.lineTo(x - 15, y); ctx.strokeStyle = "#94a3b8"; ctx.stroke();
+                        ctx.fillStyle = "#1e293b"; ctx.fillText(s.c2[j].substring(0, 3) + ".", x, y);
                         count2++;
                     }
                 }
@@ -278,9 +332,8 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
                             let y = (yGap3 * count3) + (yGap3 / 2);
                             let x = xOffsets[3];
                             
-                            // Line from parent
-                            ctx.beginPath(); ctx.moveTo(l2Nodes[i].x + 10, l2Nodes[i].y); ctx.lineTo(x - 15, y); ctx.strokeStyle = "#94a3b8"; ctx.stroke();
-                            ctx.fillStyle = "#1e293b"; ctx.fillText(s.c3[k].charAt(0), x, y);
+                            ctx.beginPath(); ctx.moveTo(l2Nodes[i].x + 20, l2Nodes[i].y); ctx.lineTo(x - 15, y); ctx.strokeStyle = "#94a3b8"; ctx.stroke();
+                            ctx.fillStyle = "#1e293b"; ctx.fillText(s.c3[k].substring(0, 3) + ".", x, y);
                             count3++;
                         }
                     }
@@ -296,52 +349,61 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         let feedback = document.getElementById('step-feedback');
         let isCorrect = false;
         let dbSubSkill = null;
+        let errorHint = "";
 
         if (step <= 3) {
             let val = parseInt(document.getElementById('ans-input').value);
             if (isNaN(val)) return;
 
-            if (step === 0 && val === s.c1.length) isCorrect = true;
-            if (step === 1 && val === s.c2.length) isCorrect = true;
-            if (step === 2 && val === s.c3.length) isCorrect = true;
-            if (step === 3 && val === s.totalOutcomes) { isCorrect = true; dbSubSkill = 'p3_total'; }
+            if (step === 0) { if (val === s.c1.length) isCorrect = true; else errorHint = `Count the items in the ${s.c1Name} list above!`; }
+            if (step === 1) { if (val === s.c2.length) isCorrect = true; else errorHint = `Count the items in the ${s.c2Name} list above!`; }
+            if (step === 2) { if (val === s.c3.length) isCorrect = true; else errorHint = `Count the items in the ${s.c3Name} list above!`; }
+            if (step === 3) { 
+                if (val === s.totalOutcomes) { isCorrect = true; dbSubSkill = 'p3_total'; }
+                else errorHint = `Multiply the choices together (${s.c1.length} × ${s.c2.length} × ${s.c3.length}) or count the right edge.`;
+            }
         } else {
             let num = parseInt(document.getElementById('ans-num').value);
             let den = parseInt(document.getElementById('ans-den').value);
             if (isNaN(num) || isNaN(den) || den === 0) return;
 
             let targetNum, targetDen = s.totalOutcomes;
-            if (step === 4) { // Specific Match (1 path)
+            if (step === 4) { 
                 targetNum = 1;
                 dbSubSkill = 'p3_match';
-                if (num * targetDen === targetNum * den) isCorrect = true; // Cross-multiplication
-            } else if (step === 5) { // Broad Match (c2 * c3 paths)
+                if (num * targetDen === targetNum * den) isCorrect = true; 
+                else errorHint = `That specific exact combination only appears exactly 1 time in the whole tree!`;
+            } else if (step === 5) { 
                 targetNum = s.c2.length * s.c3.length;
                 dbSubSkill = 'p3_diff';
                 if (num * targetDen === targetNum * den) isCorrect = true;
+                else errorHint = `How many branches originate from ${s.t1}? Count them all!`;
             }
         }
 
-        handleStepResult(isCorrect, feedback, dbSubSkill);
+        handleStepResult(isCorrect, feedback, dbSubSkill, errorHint);
     };
 
     window.checkFairness = function(answer) {
+        let s = p525Data.scenario;
         let feedback = document.getElementById('step-feedback');
-        // Because both Player A and Player B have exactly 1 base flavor assigned, their branch counts are equal. Yes, it's fair.
-        let isCorrect = (answer === 'Yes'); 
-        handleStepResult(isCorrect, feedback, 'p3_fair');
+        let isCorrect = (answer === s.isFair); 
+        
+        let pABranches = s.totalOutcomes / s.c1.length;
+        let pBBranches = s.totalOutcomes / s.pB_Length;
+        let errorHint = `Compare their winning paths! Player A has ${pABranches} winning paths. Player B has ${pBBranches} winning paths.`;
+        
+        handleStepResult(isCorrect, feedback, 'p3_fair', errorHint);
     };
 
-    function handleStepResult(isCorrect, feedback, dbSubSkill) {
+    function handleStepResult(isCorrect, feedback, dbSubSkill, errorHint) {
         if (isCorrect) {
             feedback.style.color = "#16a34a";
             feedback.innerText = "✅ Correct!";
             
-            // Advance Tree visually if in building phase
             if (p525Data.step < 3) p525Data.treeState++;
             drawTree();
 
-            // Handle DB Subskill update
             if (dbSubSkill && p525Data.errorsInCurrentStep === 0) {
                 let current = window.userMastery[dbSubSkill] || 0;
                 let newVal = Math.min(10, current + 1);
@@ -368,8 +430,7 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
         } else {
             p525Data.errorsInCurrentStep++;
             feedback.style.color = "#dc2626";
-            if (p525Data.step <= 2) feedback.innerText = "❌ Look at the table above and count the options for that category!";
-            else feedback.innerText = "❌ Not quite. Count the branches carefully!";
+            feedback.innerText = `❌ Not quite. ${errorHint}`;
         }
     }
 
@@ -385,7 +446,6 @@ console.log("🚀 skill_prob525.js - Interactive Tree Builder is LIVE");
             </div>
         `;
 
-        // Update Main Skill
         let curMain = window.userMastery.Prob525 || 0;
         let newMain = Math.min(10, curMain + 1);
         window.userMastery.Prob525 = newMain;
