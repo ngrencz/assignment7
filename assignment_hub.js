@@ -213,6 +213,7 @@ async function loadNextQuestion() {
             { id: 'SimplifyExpr', fn: typeof initSimplifyGame !== 'undefined' ? initSimplifyGame : null },
             { id: 'ProbTable', fn: typeof initProbTableGame !== 'undefined' ? initProbTableGame : null },
             { id: 'MixtureRatio', fn: typeof initMixtureRatioGame !== 'undefined' ? initMixtureRatioGame : null },
+            { id: 'Prob525', fn: typeof initProb525Game !== 'undefined' ? initProb525Game : null },
             { id: 'SpinnerFrac', fn: typeof initSpinnerFracGame !== 'undefined' ? initSpinnerFracGame : null }
         ].filter(s => s.fn !== null);
 
@@ -226,7 +227,8 @@ async function loadNextQuestion() {
         const lessonAnchors = {
             '5.2.2': 'Prob522',
             '5.2.3': 'DependentProb',
-            '5.2.4': 'ProbTable' // Ready for your next module!
+            '5.2.4': 'ProbTable',
+            '5.2.5': 'Prob525'
         };
 
         // Check if the lesson exists in our dictionary
