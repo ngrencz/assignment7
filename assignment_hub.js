@@ -214,7 +214,8 @@ async function loadNextQuestion() {
             { id: 'ProbTable', fn: typeof initProbTableGame !== 'undefined' ? initProbTableGame : null },
             { id: 'MixtureRatio', fn: typeof initMixtureRatioGame !== 'undefined' ? initMixtureRatioGame : null },
             { id: 'Prob525', fn: typeof initProb525Game !== 'undefined' ? initProb525Game : null },
-            { id: 'SpinnerFrac', fn: typeof initSpinnerFracGame !== 'undefined' ? initSpinnerFracGame : null }
+            { id: 'SpinnerFrac', fn: typeof initSpinnerFracGame !== 'undefined' ? initSpinnerFracGame : null },
+            { id: 'AreaPerimeter', fn: typeof initAreaPerimeterGame !== 'undefined' ? initAreaPerimeterGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
