@@ -223,6 +223,7 @@ async function loadNextQuestion() {
             { id: 'ExpressionMats', fn: typeof initExpressionMatsGame !== 'undefined' ? initExpressionMatsGame : null },
             { id: 'Process5D', fn: typeof initProcess5DGame !== 'undefined' ? initProcess5DGame : null },
             { id: 'CompareProb', fn: typeof initCompareProbGame !== 'undefined' ? initCompareProbGame : null },
+            { id: 'OrderOfOps', fn: typeof initOrderOfOpsGame !== 'undefined' ? initOrderOfOpsGame : null },
             { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null }
         ].filter(s => s.fn !== null);
 
@@ -237,7 +238,8 @@ async function loadNextQuestion() {
         const curriculumSequence = [
             'DiamondMath',
             'SolveX',
-            'PortionsWeb'
+            'OrderOfOps',
+            'PortionsWeb',
             'Graphing',
             'BoxPlot',
             'ShapeArea',
@@ -247,7 +249,7 @@ async function loadNextQuestion() {
             'AlgebraTiles',
             'DiscountFrac',
             'ProportionsWeb',
-            'ExpressionMats'
+            'ExpressionMats',
             'SimplifyExpr', // 5.2.1
             'Prob522', //5.2.2
             'ProbOr',
