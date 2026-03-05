@@ -221,7 +221,8 @@ async function loadNextQuestion() {
             { id: 'PortionsWeb', fn: typeof initPortionsWebGame !== 'undefined' ? initPortionsWebGame : null },
             { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null },
             { id: 'ExpressionMats', fn: typeof initExpressionMatsGame !== 'undefined' ? initExpressionMatsGame : null },
-            { id: 'Process5D', fn: typeof initProcess5DGame !== 'undefined' ? initProcess5DGame : null }
+            { id: 'Process5D', fn: typeof initProcess5DGame !== 'undefined' ? initProcess5DGame : null },
+            { id: 'CompareProb', fn: typeof initCompareProbGame !== 'undefined' ? initCompareProbGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -256,7 +257,8 @@ async function loadNextQuestion() {
             'SpinnerFrac',
             'Prob525',//5.2.5 
             'PerimeterExpr',//5.3.1
-            'Process5D'//5.3.3
+            'Process5D',//5.3.3
+            'CompareProb'
         ];
 
         // --- Dictionary-Based Routing ---
