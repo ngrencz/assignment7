@@ -138,7 +138,7 @@ async function syncTimerToDB() {
     const currentHour = sessionStorage.getItem('target_hour') || "00";
     const timerCol = `${window.targetLesson}Timer`;
     const update = { [timerCol]: window.totalSecondsWorked };
-    // SWITCHED TO assignment7
+    // STRICTLY assignment7
     try { await window.supabaseClient.from('assignment7').update(update).eq('userName', window.currentUser).eq('hour', currentHour); } 
     catch (e) { console.error("Sync error", e); }
 }
@@ -224,39 +224,73 @@ async function loadNextQuestion() {
             return;
         }
 
-        // --- NEW: Dictionary-Based Routing (Future-Proofed) ---
+        // --- NEW: Curriculum Sequence for 7th Grade ---
+        // (You can rearrange this list to perfectly match your chronological pacing!)
+        const curriculumSequence = [
+            'DiamondMath',
+            'SolveX',
+            'Graphing',
+            'BoxPlot',
+            'ShapeArea',
+            'AreaPerimeter',
+            'ComplexShapes',
+            'Substitution',
+            'AlgebraTiles',
+            'SimplifyExpr', // 5.2.1
+            'Prob522', //5.2.2
+            'ProbOr',
+            'DependentProb', //5.2.3
+            'SampleSpace',
+            'ProbTable', //5.2.4
+            'MixtureRatio',
+            'SpinnerFrac',
+            'Prob525'//5.2.5 
+        ];
+
+        // --- Dictionary-Based Routing ---
         const lessonAnchors = {
+            // Update these anchors to point exactly where they should in the sequence
+            '5.2.1': 'SimplifyExpr',
             '5.2.2': 'Prob522',
             '5.2.3': 'DependentProb',
             '5.2.4': 'ProbTable',
             '5.2.5': 'Prob525'
         };
 
-        // Check if the lesson exists in our dictionary
-        if (lessonAnchors[window.targetLesson]) {
+        const primarySkillId = lessonAnchors[window.targetLesson];
+
+        if (primarySkillId) {
             
+            // Calculate the ceiling based on the sequence array
+            const maxAllowedIndex = curriculumSequence.indexOf(primarySkillId);
+
             if (!window.hasDonePrimaryLesson) {
                 window.hasDonePrimaryLesson = true;
-                
-                // Automatically grab the correct starting skill from the dictionary
-                let primarySkillId = lessonAnchors[window.targetLesson]; 
-                
-                if (primarySkillId) {
-                    const primarySkill = skillMap.find(s => s.id === primarySkillId);
-                    if (primarySkill) {
-                        window.skillsCompletedThisSession.push(primarySkillId);
-                        return primarySkill.fn();
-                    }
+                const primarySkill = skillMap.find(s => s.id === primarySkillId);
+                if (primarySkill) {
+                    window.skillsCompletedThisSession.push(primarySkillId);
+                    return primarySkill.fn();
                 }
             }
 
-            let availableSkills = skillMap.filter(s => !window.skillsCompletedThisSession.includes(s.id));
+            // Filter out FUTURE skills (above the ceiling) and already completed skills
+            let availableSkills = skillMap.filter(s => {
+                const skillIndex = curriculumSequence.indexOf(s.id);
+                const isNotFuture = skillIndex > -1 && skillIndex <= maxAllowedIndex;
+                const isNotDoneToday = !window.skillsCompletedThisSession.includes(s.id);
+                return isNotFuture && isNotDoneToday;
+            });
             
+            // If they exhausted all previous skills, loop back to the beginning of the allowed list
             if (availableSkills.length === 0) {
                 window.skillsCompletedThisSession = [];
-                availableSkills = skillMap;
+                availableSkills = skillMap.filter(s => {
+                    const skillIndex = curriculumSequence.indexOf(s.id);
+                    return skillIndex > -1 && skillIndex <= maxAllowedIndex;
+                });
             }
 
+            // Sort by lowest mastery score using their loaded DB info
             availableSkills.sort((a, b) => {
                 const scoreA = userData ? (userData[a.id] || 0) : 0;
                 const scoreB = userData ? (userData[b.id] || 0) : 0;
@@ -276,6 +310,7 @@ async function loadNextQuestion() {
         } else {
             document.getElementById('q-title').innerText = "Under Construction";
             document.getElementById('q-content').innerHTML = `Lesson ${window.targetLesson} is not yet available.`;
+            window.isCurrentQActive = false;
         }
     } catch (err) {
         console.error("Error executing skill script:", err);
@@ -293,7 +328,7 @@ async function finishAssignment() {
         [timerCol]: Math.max(GOAL_SECONDS, window.totalSecondsWorked)
     };
 
-    // SWITCHED TO assignment7
+    // STRICTLY assignment7
     try {
         await window.supabaseClient
             .from('assignment7')
