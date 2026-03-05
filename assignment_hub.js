@@ -216,7 +216,8 @@ async function loadNextQuestion() {
             { id: 'Prob525', fn: typeof initProb525Game !== 'undefined' ? initProb525Game : null },
             { id: 'SpinnerFrac', fn: typeof initSpinnerFracGame !== 'undefined' ? initSpinnerFracGame : null },
             { id: 'AreaPerimeter', fn: typeof initAreaPerimeterGame !== 'undefined' ? initAreaPerimeterGame : null },
-            { id: 'PerimeterExpr', fn: typeof initPerimeterExprGame !== 'undefined' ? initPerimeterExprGame : null }
+            { id: 'PerimeterExpr', fn: typeof initPerimeterExprGame !== 'undefined' ? initPerimeterExprGame : null },
+            { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
