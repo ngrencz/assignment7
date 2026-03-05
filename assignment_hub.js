@@ -218,6 +218,7 @@ async function loadNextQuestion() {
             { id: 'AreaPerimeter', fn: typeof initAreaPerimeterGame !== 'undefined' ? initAreaPerimeterGame : null },
             { id: 'PerimeterExpr', fn: typeof initPerimeterExprGame !== 'undefined' ? initPerimeterExprGame : null },
             { id: 'ProportionsWeb', fn: typeof initProportionsWebGame !== 'undefined' ? initProportionsWebGame : null },
+            { id: 'PortionsWeb', fn: typeof initPortionsWebGame !== 'undefined' ? initPortionsWebGame : null },
             { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null }
         ].filter(s => s.fn !== null);
 
@@ -232,6 +233,7 @@ async function loadNextQuestion() {
         const curriculumSequence = [
             'DiamondMath',
             'SolveX',
+            'PortionsWeb'
             'Graphing',
             'BoxPlot',
             'ShapeArea',
