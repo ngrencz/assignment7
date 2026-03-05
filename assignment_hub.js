@@ -258,7 +258,7 @@ async function loadNextQuestion() {
             'SpinnerFrac',
             'Prob525',//5.2.5 
             'PerimeterExpr',//5.3.1
-            'Process5D',
+            'Process5D',//5.3.3
             'CompareProb',
             'FindMissing'//5.3.4
         ];
@@ -272,6 +272,7 @@ async function loadNextQuestion() {
             '5.2.4': 'ProbTable',
             '5.2.5': 'Prob525',
             '5.3.1': 'PerimeterExpr',
+            '5.3.3': 'Process5D',
             '5.3.4': 'FindMissing'
         };
 
