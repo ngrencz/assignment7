@@ -217,6 +217,7 @@ async function loadNextQuestion() {
             { id: 'SpinnerFrac', fn: typeof initSpinnerFracGame !== 'undefined' ? initSpinnerFracGame : null },
             { id: 'AreaPerimeter', fn: typeof initAreaPerimeterGame !== 'undefined' ? initAreaPerimeterGame : null },
             { id: 'PerimeterExpr', fn: typeof initPerimeterExprGame !== 'undefined' ? initPerimeterExprGame : null },
+            { id: 'ProportionsWeb', fn: typeof initProportionsWebGame !== 'undefined' ? initProportionsWebGame : null },
             { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null }
         ].filter(s => s.fn !== null);
 
@@ -239,6 +240,7 @@ async function loadNextQuestion() {
             'Substitution',
             'AlgebraTiles',
             'DiscountFrac',
+            'ProportionsWeb',
             'SimplifyExpr', // 5.2.1
             'Prob522', //5.2.2
             'ProbOr',
