@@ -222,7 +222,8 @@ async function loadNextQuestion() {
             { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null },
             { id: 'ExpressionMats', fn: typeof initExpressionMatsGame !== 'undefined' ? initExpressionMatsGame : null },
             { id: 'Process5D', fn: typeof initProcess5DGame !== 'undefined' ? initProcess5DGame : null },
-            { id: 'CompareProb', fn: typeof initCompareProbGame !== 'undefined' ? initCompareProbGame : null }
+            { id: 'CompareProb', fn: typeof initCompareProbGame !== 'undefined' ? initCompareProbGame : null },
+            { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -258,7 +259,8 @@ async function loadNextQuestion() {
             'Prob525',//5.2.5 
             'PerimeterExpr',//5.3.1
             'Process5D',//5.3.3
-            'CompareProb'
+            'CompareProb',
+            'FindMissing'//5.3.4
         ];
 
         // --- Dictionary-Based Routing ---
@@ -270,7 +272,8 @@ async function loadNextQuestion() {
             '5.2.4': 'ProbTable',
             '5.2.5': 'Prob525',
             '5.3.1': 'PerimeterExpr',
-            '5.3.3': 'Process5D'
+            '5.3.3': 'Process5D',
+            '5.3.4': 'FindMissing'
         };
 
         const primarySkillId = lessonAnchors[window.targetLesson];
