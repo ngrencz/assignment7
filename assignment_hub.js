@@ -219,7 +219,8 @@ async function loadNextQuestion() {
             { id: 'PerimeterExpr', fn: typeof initPerimeterExprGame !== 'undefined' ? initPerimeterExprGame : null },
             { id: 'ProportionsWeb', fn: typeof initProportionsWebGame !== 'undefined' ? initProportionsWebGame : null },
             { id: 'PortionsWeb', fn: typeof initPortionsWebGame !== 'undefined' ? initPortionsWebGame : null },
-            { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null }
+            { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null },
+            { id: 'ExpressionMats', fn: typeof initExpressionMatsGame !== 'undefined' ? initExpressionMatsGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -243,6 +244,7 @@ async function loadNextQuestion() {
             'AlgebraTiles',
             'DiscountFrac',
             'ProportionsWeb',
+            'ExpressionMats'
             'SimplifyExpr', // 5.2.1
             'Prob522', //5.2.2
             'ProbOr',
