@@ -215,7 +215,8 @@ async function loadNextQuestion() {
             { id: 'MixtureRatio', fn: typeof initMixtureRatioGame !== 'undefined' ? initMixtureRatioGame : null },
             { id: 'Prob525', fn: typeof initProb525Game !== 'undefined' ? initProb525Game : null },
             { id: 'SpinnerFrac', fn: typeof initSpinnerFracGame !== 'undefined' ? initSpinnerFracGame : null },
-            { id: 'AreaPerimeter', fn: typeof initAreaPerimeterGame !== 'undefined' ? initAreaPerimeterGame : null }
+            { id: 'AreaPerimeter', fn: typeof initAreaPerimeterGame !== 'undefined' ? initAreaPerimeterGame : null },
+            { id: 'PerimeterExpr', fn: typeof initPerimeterExprGame !== 'undefined' ? initPerimeterExprGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -244,7 +245,8 @@ async function loadNextQuestion() {
             'ProbTable', //5.2.4
             'MixtureRatio',
             'SpinnerFrac',
-            'Prob525'//5.2.5 
+            'Prob525',//5.2.5 
+            'PerimeterExpr'//5.3.1
         ];
 
         // --- Dictionary-Based Routing ---
@@ -254,7 +256,8 @@ async function loadNextQuestion() {
             '5.2.2': 'Prob522',
             '5.2.3': 'DependentProb',
             '5.2.4': 'ProbTable',
-            '5.2.5': 'Prob525'
+            '5.2.5': 'Prob525',
+            '5.3.1': 'PerimeterExpr'
         };
 
         const primarySkillId = lessonAnchors[window.targetLesson];
