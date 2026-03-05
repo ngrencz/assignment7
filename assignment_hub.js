@@ -238,6 +238,7 @@ async function loadNextQuestion() {
             'ComplexShapes',
             'Substitution',
             'AlgebraTiles',
+            'DiscountFrac',
             'SimplifyExpr', // 5.2.1
             'Prob522', //5.2.2
             'ProbOr',
