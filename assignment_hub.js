@@ -224,7 +224,8 @@ async function loadNextQuestion() {
             { id: 'Process5D', fn: typeof initProcess5DGame !== 'undefined' ? initProcess5DGame : null },
             { id: 'CompareProb', fn: typeof initCompareProbGame !== 'undefined' ? initCompareProbGame : null },
             { id: 'OrderOfOps', fn: typeof initOrderOfOpsGame !== 'undefined' ? initOrderOfOpsGame : null },
-            { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null }
+            { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null },
+            { id: 'PercentDiagram', fn: typeof initPercentDiagramGame !== 'undefined' ? initPercentDiagramGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -240,6 +241,7 @@ async function loadNextQuestion() {
             'SolveX',
             'OrderOfOps',
             'PortionsWeb',
+            'PercentDiagram',
             'Graphing',
             'BoxPlot',
             'ShapeArea',
