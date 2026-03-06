@@ -1,12 +1,13 @@
 /**
  * skill_process5d_sum.js
- * - 7th Grade: The 5-D Process (Summation & Two-Step Rules)
- * - Ties to Lesson 5.3.5
- * - Generates word problems where Group 2 is defined in terms of Group 1 (e.g., 2x + 6).
- * - Forces the student to use a Trial-and-Error table with strict addition validation.
+ * - 7th Grade: The 5-D Process (Summation & Multi-Group Rules)
+ * - Ties to Lesson 5.3.5 and CL 5-150.
+ * - Mastery < 5: Generates 2-group problems.
+ * - Mastery >= 5: Unlocks 3-group problems (x, x+a, mx).
+ * - Dynamically adjusts the table and validation based on the active scenario.
  */
 
-console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
+console.log("🚀 skill_process5d_sum.js is LIVE - Adaptive Multi-Group 5-D");
 
 (function() {
     let p5sData = {};
@@ -54,47 +55,83 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
     }
 
     function generateP5sProblem() {
-        const scenarios = [
-            { g1: "6th graders", g2: "7th graders", totalName: "middle school students", loc: "at the summer camp" },
-            { g1: "children", g2: "adults", totalName: "people", loc: "at the movie theater" },
-            { g1: "dimes", g2: "quarters", totalName: "coins", loc: "in the jar" },
-            { g1: "cats", g2: "dogs", totalName: "animals", loc: "at the rescue shelter" },
-            { g1: "student tickets", g2: "adult tickets", totalName: "total tickets", loc: "sold for the play" }
-        ];
+        let mastery = window.userMastery.Process5DSum || 0;
+        // Unlock 3-group problems at Level 5 (50% chance if unlocked)
+        let isThreeGroups = (mastery >= 5 && Math.random() > 0.5);
 
-        let s = scenarios[Math.floor(Math.random() * scenarios.length)];
-        
-        // Generate the underlying math
-        let x = Math.floor(Math.random() * 30) + 15; // Group 1 value (15 to 44)
-        let m = Math.floor(Math.random() * 2) + 2;   // Multiplier (2 or 3)
-        let b = Math.floor(Math.random() * 20) - 5;  // Offset (-5 to 14)
-        if (b === 0) b = 4; // Avoid exactly "twice as many" to force the two-step rule
-        
-        let g2Value = (m * x) + b;
-        let targetTotal = x + g2Value;
+        if (isThreeGroups) {
+            const scenarios3 = [
+                {
+                    n1: "youngest child", n2: "oldest child", n3: "parent",
+                    getPrompt: (a, m, total) => `A parent has two children. The oldest child is ${a} years older than the youngest child. The parent is ${m} times as old as the youngest child. The sum of their ages is ${total} years. Find all three ages.`
+                },
+                {
+                    n1: "pennies", n2: "nickels", n3: "dimes",
+                    getPrompt: (a, m, total) => `Evan has a jar of coins. He has ${a} more nickels than pennies. He has ${m} times as many dimes as pennies. He has ${total} coins in all. How many of each coin does he have?`
+                },
+                {
+                    n1: "small cups", n2: "medium cups", n3: "large cups",
+                    getPrompt: (a, m, total) => `A cafe sells three drink sizes. Today they sold ${a} more medium cups than small cups. They sold ${m} times as many large cups as small cups. They sold ${total} cups in total. Find the amounts for each size.`
+                }
+            ];
 
-        // Construct the word problem text
-        let multText = m === 2 ? "twice" : "three times";
-        let relationshipText = "";
-        
-        if (b > 0) {
-            relationshipText = `${b} more than ${multText} the number of ${s.g1}`;
+            let s = scenarios3[Math.floor(Math.random() * scenarios3.length)];
+            
+            let x = Math.floor(Math.random() * 8) + 4; // 4 to 11
+            let a = Math.floor(Math.random() * 5) + 2; // +2 to +6
+            let m3 = Math.floor(Math.random() * 3) + 3; // 3x to 5x
+            
+            let g2Value = x + a;
+            let g3Value = x * m3;
+            let targetTotal = x + g2Value + g3Value;
+
+            p5sData = {
+                numGroups: 3,
+                names: [s.n1, s.n2, s.n3],
+                x: x,
+                a: a,          // Additive offset for Group 2
+                m3: m3,        // Multiplier for Group 3
+                g2: g2Value,
+                g3: g3Value,
+                target: targetTotal,
+                prompt: s.getPrompt(a, m3, targetTotal),
+                rel2Text: `${a} more than ${s.n1}`,
+                rel3Text: `${m3} times as many as ${s.n1}`
+            };
+
         } else {
-            relationshipText = `${Math.abs(b)} less than ${multText} the number of ${s.g1}`;
+            // Standard 2-Group logic
+            const scenarios2 = [
+                { n1: "6th graders", n2: "7th graders", totalName: "middle school students", loc: "at the camp" },
+                { n1: "children", n2: "adults", totalName: "people", loc: "at the theater" },
+                { n1: "cats", n2: "dogs", totalName: "animals", loc: "at the rescue shelter" }
+            ];
+
+            let s = scenarios2[Math.floor(Math.random() * scenarios2.length)];
+            
+            let x = Math.floor(Math.random() * 20) + 10; 
+            let m = Math.floor(Math.random() * 2) + 2;   
+            let b = Math.floor(Math.random() * 15) - 5;  
+            if (b === 0) b = 4; 
+            
+            let g2Value = (m * x) + b;
+            let targetTotal = x + g2Value;
+
+            let multText = m === 2 ? "twice" : "three times";
+            let relText = b > 0 ? `${b} more than ${multText}` : `${Math.abs(b)} less than ${multText}`;
+
+            p5sData = {
+                numGroups: 2,
+                names: [s.n1, s.n2],
+                x: x,
+                m: m,          
+                b: b,          
+                g2: g2Value,   
+                target: targetTotal,
+                prompt: `The number of ${s.n2} ${s.loc} was ${relText} the number of ${s.n1}. There were a total of <strong>${targetTotal}</strong> ${s.totalName} ${s.loc}. Find the number of ${s.n1} and ${s.n2}.`,
+                rel2Text: relText
+            };
         }
-
-        let prompt = `The number of ${s.g2} ${s.loc} was ${relationshipText}. There were a total of <strong>${targetTotal}</strong> ${s.totalName} ${s.loc}. Use the 5-D Process to find the number of ${s.g1} and ${s.g2}.`;
-
-        p5sData = {
-            scenario: s,
-            x: x,          // Group 1 correct answer
-            m: m,          // Multiplier
-            b: b,          // Offset
-            g2: g2Value,   // Group 2 correct answer
-            target: targetTotal,
-            prompt: prompt,
-            relText: relationshipText
-        };
     }
 
     function renderP5sUI() {
@@ -103,18 +140,31 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
 
         document.getElementById('q-title').innerText = `The 5-D Process: Sums (Round ${p5sRound}/${totalP5sRounds})`;
 
-        let s = p5sData.scenario;
+        let is3 = p5sData.numGroups === 3;
+        let maxWidth = is3 ? "850px" : "750px"; // Expand width for extra column
+
+        let g3Header = is3 ? `<th style="font-size:13px; font-style:italic; background:#f8fafc;">${capitalize(p5sData.names[2])}<br><span style="font-weight:normal;">(${p5sData.rel3Text})</span></th>` : '';
+        let t1g3Input = is3 ? `<td><input type="number" id="t1-g3" class="t5d-input" placeholder="?"></td>` : '';
+        let t2g3Input = is3 ? `<td><input type="number" id="t2-g3" class="t5d-input" placeholder="?"></td>` : '';
+        
+        let declareG3 = is3 ? `
+            <span style="color:#94a3b8; font-weight:bold;">AND</span>
+            <div>
+                <input type="number" id="ans-g3" style="width:60px; padding:8px; text-align:center; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
+                ${p5sData.names[2]}
+            </div>
+        ` : '';
 
         qContent.innerHTML = `
             <style>
-                .t5d { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 15px; }
-                .t5d th, .t5d td { border: 2px solid #cbd5e1; padding: 10px; text-align: center; }
+                .t5d { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+                .t5d th, .t5d td { border: 2px solid #cbd5e1; padding: 8px; text-align: center; }
                 .t5d th { background: #f1f5f9; color: #1e293b; font-weight: bold; }
                 .t5d-input { width: 65px; padding: 6px; text-align: center; font-size: 15px; border: 2px solid #94a3b8; border-radius: 4px; outline: none; }
                 .t5d-select { padding: 6px; font-size: 14px; border: 2px solid #94a3b8; border-radius: 4px; outline: none; background: white; }
             </style>
 
-            <div style="max-width: 750px; margin: 0 auto; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
+            <div style="max-width: ${maxWidth}; margin: 0 auto; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
                 
                 <p style="font-size: 16px; color: #1e293b; line-height: 1.6; margin-bottom: 20px;">
                     ${p5sData.prompt}
@@ -123,19 +173,21 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
                 <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; overflow-x: auto;">
                     <table class="t5d">
                         <tr>
-                            <th colspan="2">Define</th>
+                            <th colspan="${p5sData.numGroups}">Define</th>
                             <th>Do</th>
                             <th>Decide</th>
                         </tr>
                         <tr>
-                            <th style="font-size:13px; font-style:italic; background:#f8fafc;">${s.g1.charAt(0).toUpperCase() + s.g1.slice(1)} (Trial)</th>
-                            <th style="font-size:13px; font-style:italic; background:#f8fafc;">${s.g2.charAt(0).toUpperCase() + s.g2.slice(1)}<br><span style="font-weight:normal;">(${p5sData.relText})</span></th>
+                            <th style="font-size:13px; font-style:italic; background:#f8fafc;">${capitalize(p5sData.names[0])} (Trial)</th>
+                            <th style="font-size:13px; font-style:italic; background:#f8fafc;">${capitalize(p5sData.names[1])}<br><span style="font-weight:normal;">(${p5sData.rel2Text})</span></th>
+                            ${g3Header}
                             <th style="font-size:13px; font-style:italic; background:#f8fafc;">Total (Sum)</th>
                             <th style="font-size:13px; font-style:italic; background:#f8fafc;">Target = ${p5sData.target}?</th>
                         </tr>
                         <tr>
                             <td><input type="number" id="t1-g1" class="t5d-input" placeholder="?"></td>
                             <td><input type="number" id="t1-g2" class="t5d-input" placeholder="?"></td>
+                            ${t1g3Input}
                             <td><input type="number" id="t1-sum" class="t5d-input" placeholder="?"></td>
                             <td>
                                 <select id="t1-dec" class="t5d-select">
@@ -149,6 +201,7 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
                         <tr>
                             <td><input type="number" id="t2-g1" class="t5d-input" placeholder="?"></td>
                             <td><input type="number" id="t2-g2" class="t5d-input" placeholder="?"></td>
+                            ${t2g3Input}
                             <td><input type="number" id="t2-sum" class="t5d-input" placeholder="?"></td>
                             <td>
                                 <select id="t2-dec" class="t5d-select">
@@ -164,16 +217,17 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
 
                 <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; display:flex; flex-direction:column; align-items:center;">
                     <span style="font-size:16px; font-weight:bold; color:#1e293b; margin-bottom:15px;">Declare:</span>
-                    <div style="display:flex; flex-wrap: wrap; justify-content:center; gap:15px; font-size:16px;">
+                    <div style="display:flex; flex-wrap: wrap; justify-content:center; align-items:center; gap:15px; font-size:16px;">
                         <div>
                             <input type="number" id="ans-g1" style="width:60px; padding:8px; text-align:center; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
-                            ${s.g1}
+                            ${p5sData.names[0]}
                         </div>
                         <span style="color:#94a3b8; font-weight:bold;">AND</span>
                         <div>
                             <input type="number" id="ans-g2" style="width:60px; padding:8px; text-align:center; font-size:16px; border:2px solid #3b82f6; border-radius:6px; outline:none;">
-                            ${s.g2}
+                            ${p5sData.names[1]}
                         </div>
+                        ${declareG3}
                     </div>
                 </div>
 
@@ -185,30 +239,45 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
         setTimeout(() => { document.getElementById('t1-g1')?.focus(); }, 100);
     }
 
-    // Helper to evaluate the relationship rule for Group 2
-    function calcG2Rule(guessG1) {
-        return (guessG1 * p5sData.m) + p5sData.b;
+    function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function calcG2Rule(g1) {
+        if (p5sData.numGroups === 2) return (g1 * p5sData.m) + p5sData.b;
+        else return g1 + p5sData.a;
+    }
+
+    function calcG3Rule(g1) {
+        return g1 * p5sData.m3;
     }
 
     window.checkProcess5DSum = function() {
         let hintMsg = "❌ Check your work!<br><br>";
         let allCorrect = true;
+        let is3 = p5sData.numGroups === 3;
 
-        // 1. Check Final Declare Answers (Must be exact and in the right boxes)
+        // 1. Check Final Declare Answers
         const a1 = parseInt(document.getElementById('ans-g1').value);
         const a2 = parseInt(document.getElementById('ans-g2').value);
-        
         let finalCorrect = (!isNaN(a1) && !isNaN(a2) && a1 === p5sData.x && a2 === p5sData.g2);
-
+        
         document.getElementById('ans-g1').style.borderColor = finalCorrect ? "#22c55e" : "#ef4444";
         document.getElementById('ans-g2').style.borderColor = finalCorrect ? "#22c55e" : "#ef4444";
 
-        if (!finalCorrect) {
-            allCorrect = false;
-            hintMsg += `• Your final answer does not add up to ${p5sData.target} or follow the rule.<br>`;
+        if (is3) {
+            const a3 = parseInt(document.getElementById('ans-g3').value);
+            let a3Correct = (!isNaN(a3) && a3 === p5sData.g3);
+            document.getElementById('ans-g3').style.borderColor = a3Correct ? "#22c55e" : "#ef4444";
+            finalCorrect = finalCorrect && a3Correct;
         }
 
-        // 2. Validate Table Logic (They must show at least ONE mathematically valid trial row)
+        if (!finalCorrect) {
+            allCorrect = false;
+            hintMsg += `• Your final answers do not add up to ${p5sData.target} or follow the rules.<br>`;
+        }
+
+        // 2. Validate Table Logic
         let t1g1 = document.getElementById('t1-g1').value;
         let t2g1 = document.getElementById('t2-g1').value;
         
@@ -227,37 +296,50 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
                     let sum = parseInt(document.getElementById(`t${rowNum}-sum`).value);
                     let dec = document.getElementById(`t${rowNum}-dec`).value;
                     
+                    let expectedSum = g1 + g2;
                     let rowGood = true;
 
-                    // Check Group 2 Rule Math
+                    // Group 2 Math
                     if (g2 !== calcG2Rule(g1)) {
                         rowGood = false;
-                        hintMsg += `• Trial ${rowNum}: Group 2 does not follow the rule (${p5sData.relText}).<br>`;
+                        hintMsg += `• Trial ${rowNum}: Group 2 does not follow the rule (${p5sData.rel2Text}).<br>`;
                         document.getElementById(`t${rowNum}-g2`).style.borderColor = "#ef4444";
                     } else {
                         document.getElementById(`t${rowNum}-g2`).style.borderColor = "#22c55e";
                     }
 
-                    // Check Sum Math (Do column)
-                    if (sum !== g1 + g2) {
+                    // Group 3 Math (if active)
+                    if (is3) {
+                        let g3 = parseInt(document.getElementById(`t${rowNum}-g3`).value);
+                        expectedSum += g3;
+                        if (g3 !== calcG3Rule(g1)) {
+                            rowGood = false;
+                            hintMsg += `• Trial ${rowNum}: Group 3 does not follow the rule (${p5sData.rel3Text}).<br>`;
+                            document.getElementById(`t${rowNum}-g3`).style.borderColor = "#ef4444";
+                        } else {
+                            document.getElementById(`t${rowNum}-g3`).style.borderColor = "#22c55e";
+                        }
+                    }
+
+                    // Sum Math
+                    if (sum !== expectedSum) {
                         rowGood = false;
-                        hintMsg += `• Trial ${rowNum}: The Total should be the sum of Group 1 + Group 2.<br>`;
+                        hintMsg += `• Trial ${rowNum}: The Total should be the sum of all groups.<br>`;
                         document.getElementById(`t${rowNum}-sum`).style.borderColor = "#ef4444";
                     } else {
                         document.getElementById(`t${rowNum}-sum`).style.borderColor = "#22c55e";
                     }
 
-                    // Check Decide Logic
-                    let actualSum = g1 + g2; 
-                    let expectedDec = "";
-                    if (!isNaN(actualSum)) {
-                        if (actualSum < p5sData.target) expectedDec = "low";
-                        else if (actualSum > p5sData.target) expectedDec = "high";
+                    // Decide Logic
+                    if (!isNaN(expectedSum)) {
+                        let expectedDec = "";
+                        if (expectedSum < p5sData.target) expectedDec = "low";
+                        else if (expectedSum > p5sData.target) expectedDec = "high";
                         else expectedDec = "correct";
                         
                         if (dec !== expectedDec) {
                             rowGood = false;
-                            hintMsg += `• Trial ${rowNum}: Your Decide column is incorrect for a total of ${actualSum}.<br>`;
+                            hintMsg += `• Trial ${rowNum}: Your Decide column is incorrect for a total of ${expectedSum}.<br>`;
                             document.getElementById(`t${rowNum}-dec`).style.borderColor = "#ef4444";
                         } else {
                             document.getElementById(`t${rowNum}-dec`).style.borderColor = "#22c55e";
@@ -303,7 +385,6 @@ console.log("🚀 skill_process5d_sum.js is LIVE - 5-D Process (Sums)");
                 <div style="font-size:60px; margin-bottom:15px;">➕</div>
                 <h2 style="color:#1e293b; margin:10px 0;">Summation Mastered!</h2>
                 <p style="color:#64748b; font-size:16px;">Saving results to database...</p>
-                <p style="color:#3b82f6; font-size:14px; font-weight:bold; margin-top:15px; background:#eff6ff; padding:10px; border-radius:8px;">(Keep practicing until your Session Timer hits the goal!)</p>
             </div>
         `;
 
