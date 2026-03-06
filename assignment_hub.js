@@ -9,8 +9,8 @@ if (!window.supabaseClient) {
 
 // --- Dynamic Time Requirements ---
 const timeRequirements = {
-    '5.2.2': 12 * 60, // 12 minutes
-    'default': 12 * 60
+    'default': 12 * 60,
+    'C5Review': 2100 // 35 minutes in seconds
 };
 
 // Global State
@@ -240,8 +240,7 @@ async function loadNextQuestion() {
             return;
         }
 
-        // --- NEW: Curriculum Sequence for 7th Grade ---
-        // (You can rearrange this list to perfectly match your chronological pacing!)
+        // --- FIXED: Added the missing comma after FindMissing ---
         const curriculumSequence = [
             'DiamondMath',
             'SolveX',
@@ -263,25 +262,24 @@ async function loadNextQuestion() {
             'DiscountFrac',
             'ProportionsWeb',
             'ExpressionMats',
-            'SimplifyExpr', // 5.2.1
-            'Prob522', //5.2.2
+            'SimplifyExpr', 
+            'Prob522', 
             'ProbOr',
-            'DependentProb', //5.2.3
+            'DependentProb', 
             'SampleSpace',
-            'ProbTable', //5.2.4
+            'ProbTable', 
             'MixtureRatio',
             'SpinnerFrac',
-            'Prob525',//5.2.5 
-            'PerimeterExpr',//5.3.1
-            'Process5D',//5.3.3
+            'Prob525',
+            'PerimeterExpr',
+            'Process5D',
             'CompareProb',
-            'FindMissing'//5.3.4
-            'C5Review',
+            'FindMissing', // <-- Comma added here
+            'C5Review'
         ];
 
-        // --- Dictionary-Based Routing ---
+        // --- FIXED: Standardized the C5Review anchor key ---
         const lessonAnchors = {
-            // Update these anchors to point exactly where they should in the sequence
             '5.2.1': 'SimplifyExpr',
             '5.2.2': 'Prob522',
             '5.2.3': 'DependentProb',
@@ -290,7 +288,7 @@ async function loadNextQuestion() {
             '5.3.1': 'PerimeterExpr',
             '5.3.3': 'Process5D',
             '5.3.4': 'FindMissing',
-            'C5Rev': 'C5Review'
+            'C5Review': 'C5Review' // <-- Standardized to match the timeRequirements dictionary
         };
 
         const primarySkillId = lessonAnchors[window.targetLesson];
