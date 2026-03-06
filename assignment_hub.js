@@ -227,7 +227,10 @@ async function loadNextQuestion() {
             { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null },
             { id: 'PercentDiagram', fn: typeof initPercentDiagramGame !== 'undefined' ? initPercentDiagramGame : null },
             { id: 'FractionOps', fn: typeof initFractionOpsGame !== 'undefined' ? initFractionOpsGame : null },
-            { id: 'UnitRates', fn: typeof initUnitRatesGame !== 'undefined' ? initUnitRatesGame : null }
+            { id: 'UnitRates', fn: typeof initUnitRatesGame !== 'undefined' ? initUnitRatesGame : null },
+            { id: 'ReversePercent', fn: typeof initReversePercentGame !== 'undefined' ? initReversePercentGame : null },
+            { id: 'TreeDiagrams', fn: typeof initTreeDiagramsGame !== 'undefined' ? initTreeDiagramsGame : null },
+            { id: 'IdentifyProportions', fn: typeof initIdentifyProportionsGame !== 'undefined' ? initIdentifyProportionsGame : null },
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -249,6 +252,9 @@ async function loadNextQuestion() {
             'BoxPlot',
             'UnitRates',
             'ShapeArea',
+            'ReversePercent',
+            'TreeDiagrams',
+            'IdentifyProportions',
             'AreaPerimeter',
             'ComplexShapes',
             'Substitution',
