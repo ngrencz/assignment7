@@ -222,6 +222,7 @@ async function loadNextQuestion() {
             { id: 'DiscountFrac', fn: typeof initDiscountFracGame !== 'undefined' ? initDiscountFracGame : null },
             { id: 'ExpressionMats', fn: typeof initExpressionMatsGame !== 'undefined' ? initExpressionMatsGame : null },
             { id: 'Process5D', fn: typeof initProcess5DGame !== 'undefined' ? initProcess5DGame : null },
+            { id: 'Process5DSum', fn: typeof initProcess5DSumGame !== 'undefined' ? initProcess5DSumGame : null },
             { id: 'CompareProb', fn: typeof initCompareProbGame !== 'undefined' ? initCompareProbGame : null },
             { id: 'OrderOfOps', fn: typeof initOrderOfOpsGame !== 'undefined' ? initOrderOfOpsGame : null },
             { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null },
@@ -288,6 +289,7 @@ async function loadNextQuestion() {
             '5.3.1': 'PerimeterExpr',
             '5.3.3': 'Process5D',
             '5.3.4': 'FindMissing',
+            '5.3.5': 'Process5DSum',
             'C5Review': 'C5Review' // <-- Standardized to match the timeRequirements dictionary
         };
 
