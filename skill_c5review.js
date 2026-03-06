@@ -2,7 +2,7 @@
  * skill_c5review.js
  * - 7th Grade: Chapter 5 Test Review Router
  * - Randomly pools from the exact skills assessed on the Chapter 5 Individual Test.
- * - Extends the session timer to 30 minutes.
+ * - Timer tracking and completion logic are strictly handled by the Global Hub.
  */
 
 console.log("🚀 skill_c5review.js LIVE (Chapter 5 Review Router)");
@@ -11,36 +11,32 @@ console.log("🚀 skill_c5review.js LIVE (Chapter 5 Review Router)");
     window.initC5ReviewGame = function() {
         // The exact skills mapped to the Chapter 5 Individual Assessment
         const c5Skills = [
-            'ReversePercent',      // Q1: Babe Ruth Bat 
-            'DependentProb',       // Q2, Q7, Q8: Probability
-            'TreeDiagrams',        // Q3: Mongolian Bar-B-Que Sample Space
-            'Process5D',           // Q4: Parallelogram Area
-            'FractionOps',         // Q5a: Fraction Operations
-            'OrderOfOps',          // Q5b: PEMDAS
-            'SimplifyExpr',        // Q5c: Combine Like Terms
-            'PercentDiagram',      // Q5d: Percent of a Number
-            'IdentifyProportions'  // Q6: Proportional Relationships
+            'ReversePercent',      
+            'DependentProb',       
+            'TreeDiagrams',        
+            'Process5D',           
+            'FractionOps',         
+            'OrderOfOps',          
+            'SimplifyExpr',        
+            'PercentDiagram',      
+            'IdentifyProportions'  
         ];
 
-        // Override the standard timer for this specific review (30 mins = 1800 seconds)
-        if (typeof window.targetSeconds !== 'undefined') window.targetSeconds = 1800;
-        if (typeof window.requiredSeconds !== 'undefined') window.requiredSeconds = 1800;
-        
         // Pick a random skill from the pool
         const targetSkill = c5Skills[Math.floor(Math.random() * c5Skills.length)];
         console.log("🎯 C5 Review routing to:", targetSkill);
 
-        // Execute the chosen skill's init function
+        // Map function calls
         let fnToCall = window['init' + targetSkill + 'Game'];
         
-        // Catch the modules that have slightly different naming conventions in 7th Grade
+        // Catch the modules that have slightly different naming conventions
         if (targetSkill === 'SimplifyExpr') fnToCall = window.initSimplifyGame;
         
         if (typeof fnToCall === 'function') {
-            // Launch the actual game
+            // Launch the sub-module
             fnToCall();
             
-            // Override the title slightly delayed so they know they are in the review
+            // Override the title slightly delayed so it doesn't get overwritten by the sub-module
             setTimeout(() => {
                 const titleEl = document.getElementById('q-title') || document.querySelector('h2');
                 if (titleEl) {
