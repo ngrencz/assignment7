@@ -231,6 +231,7 @@ async function loadNextQuestion() {
             { id: 'ReversePercent', fn: typeof initReversePercentGame !== 'undefined' ? initReversePercentGame : null },
             { id: 'TreeDiagrams', fn: typeof initTreeDiagramsGame !== 'undefined' ? initTreeDiagramsGame : null },
             { id: 'IdentifyProportions', fn: typeof initIdentifyProportionsGame !== 'undefined' ? initIdentifyProportionsGame : null },
+            { id: 'C5Review', fn: typeof initC5ReviewGame !== 'undefined' ? initC5ReviewGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -275,6 +276,7 @@ async function loadNextQuestion() {
             'Process5D',//5.3.3
             'CompareProb',
             'FindMissing'//5.3.4
+            'C5Review',
         ];
 
         // --- Dictionary-Based Routing ---
@@ -287,7 +289,8 @@ async function loadNextQuestion() {
             '5.2.5': 'Prob525',
             '5.3.1': 'PerimeterExpr',
             '5.3.3': 'Process5D',
-            '5.3.4': 'FindMissing'
+            '5.3.4': 'FindMissing',
+            'C5Rev': 'C5Review'
         };
 
         const primarySkillId = lessonAnchors[window.targetLesson];
