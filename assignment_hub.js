@@ -226,7 +226,8 @@ async function loadNextQuestion() {
             { id: 'OrderOfOps', fn: typeof initOrderOfOpsGame !== 'undefined' ? initOrderOfOpsGame : null },
             { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null },
             { id: 'PercentDiagram', fn: typeof initPercentDiagramGame !== 'undefined' ? initPercentDiagramGame : null },
-            { id: 'FractionOps', fn: typeof initFractionOpsGame !== 'undefined' ? initFractionOpsGame : null }
+            { id: 'FractionOps', fn: typeof initFractionOpsGame !== 'undefined' ? initFractionOpsGame : null },
+            { id: 'UnitRates', fn: typeof initUnitRatesGame !== 'undefined' ? initUnitRatesGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -246,6 +247,7 @@ async function loadNextQuestion() {
             'FractionOps',
             'Graphing',
             'BoxPlot',
+            'UnitRates',
             'ShapeArea',
             'AreaPerimeter',
             'ComplexShapes',
