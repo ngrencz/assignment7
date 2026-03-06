@@ -225,7 +225,8 @@ async function loadNextQuestion() {
             { id: 'CompareProb', fn: typeof initCompareProbGame !== 'undefined' ? initCompareProbGame : null },
             { id: 'OrderOfOps', fn: typeof initOrderOfOpsGame !== 'undefined' ? initOrderOfOpsGame : null },
             { id: 'FindMissing', fn: typeof initFindMissingGame !== 'undefined' ? initFindMissingGame : null },
-            { id: 'PercentDiagram', fn: typeof initPercentDiagramGame !== 'undefined' ? initPercentDiagramGame : null }
+            { id: 'PercentDiagram', fn: typeof initPercentDiagramGame !== 'undefined' ? initPercentDiagramGame : null },
+            { id: 'FractionOps', fn: typeof initFractionOpsGame !== 'undefined' ? initFractionOpsGame : null }
         ].filter(s => s.fn !== null);
 
         if (skillMap.length === 0) {
@@ -242,6 +243,7 @@ async function loadNextQuestion() {
             'OrderOfOps',
             'PortionsWeb',
             'PercentDiagram',
+            'FractionOps',
             'Graphing',
             'BoxPlot',
             'ShapeArea',
