@@ -149,6 +149,9 @@ console.log("🚀 skill_spinnerfrac.js is LIVE - Multi-Step Spinners");
             `;
         }
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="text-align:center; color:#64748b; margin-bottom:5px; font-weight:bold; text-transform:uppercase; letter-spacing:1px; font-size:13px;">
                 ${expertBadge}
