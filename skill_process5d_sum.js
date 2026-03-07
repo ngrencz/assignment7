@@ -155,6 +155,9 @@ console.log("🚀 skill_process5d_sum.js is LIVE - Adaptive Multi-Group 5-D");
             </div>
         ` : '';
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <style>
                 .t5d { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
