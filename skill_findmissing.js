@@ -152,6 +152,9 @@ console.log("🚀 skill_findmissing.js is LIVE - Generalizing Math");
 
         let btnText = currentStep === 3 ? "FINISH ROUND" : "CHECK & CONTINUE";
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 650px; margin: 0 auto; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
                 <p style="color: #64748b; font-size: 15px; margin-bottom: 20px; text-align: center;">Think about the mathematical process you use as you solve these problems.</p>
