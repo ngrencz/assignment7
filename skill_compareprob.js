@@ -253,6 +253,9 @@ console.log("🚀 skill_compareprob.js is LIVE - Comparing Probabilities");
         window.isCurrentQActive = false; 
         const qContent = document.getElementById('q-content');
         if (!qContent) return;
+
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
         
         qContent.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px; animation: fadeIn 0.5s;">
