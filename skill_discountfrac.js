@@ -122,6 +122,8 @@ console.log("🚀 skill_discountfrac.js is LIVE - Fraction & Percent Sub-Trackin
             `;
         });
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
         qContent.innerHTML = `
             <div style="max-width: 650px; margin: 0 auto; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
                 <p style="color: #64748b; font-size: 15px; margin-bottom: 20px; text-align: center;">Calculate the discount and subtract it from the original price.</p>
