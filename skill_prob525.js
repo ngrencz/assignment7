@@ -151,6 +151,9 @@ console.log("🚀 skill_prob525.js - Dynamic Tree Builder is LIVE");
         // Dynamically scale canvas height so massive trees don't get squished
         let canvasHeight = Math.max(400, s.totalOutcomes * 22);
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 850px; margin: 0 auto; animation: fadeIn 0.5s;">
                 <div style="background:white; padding:15px 20px; border-radius:12px; border:1px solid #cbd5e1; margin-bottom:15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
