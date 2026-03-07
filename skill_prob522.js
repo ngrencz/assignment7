@@ -187,6 +187,9 @@ function renderProbUI() {
 
     document.getElementById('q-title').innerText = `Probability Comparison (Round ${probData.round}/${probData.maxRounds})`;
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
     qContent.innerHTML = `
         <div style="max-width: 700px; margin: 0 auto; animation: fadeIn 0.5s;">
             <p style="text-align:center; color:#475569; font-size:15px; margin-bottom:20px;">
