@@ -96,6 +96,9 @@ console.log("🚀 skill_percentdiagram.js is LIVE - Percent Diagrams");
         let targetLeft = d.pct;
         let targetDisplay = d.pct > 50 ? 'right: 50%; transform: translateX(50%);' : 'left: 50%; transform: translateX(-50%);';
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 750px; margin: 0 auto; background:#f8fafc; padding:25px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
                 
