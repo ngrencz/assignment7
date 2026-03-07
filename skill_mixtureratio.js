@@ -115,6 +115,9 @@ console.log("🚀 skill_mixtureratio.js is LIVE - Percent Line Diagrams");
         
         const scenarioCText = `${mrData.name} made ${mrData.newTotal} ${mrData.unit} of ${mrData.item}. They used ${mrData.newP1} ${mrData.unit} of ${mrData.p1Name} in their mixture. Did they follow the same recipe? (Did they use the same ratio?)`;
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 650px; margin: 0 auto; background:#f8fafc; padding:25px; border-radius:12px; border:1px solid #e2e8f0;">
                 
