@@ -113,7 +113,8 @@ console.log("🚀 skill_algebratiles.js is LIVE - Sub-skills & Parsing");
         if (!qContent) return;
 
         document.getElementById('q-title').innerText = `Algebra Tiles (Round ${atRound}/${totalAtRounds})`;
-
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
         qContent.innerHTML = `
             <div style="display:flex; flex-direction:column; align-items:center; gap: 20px;">
                 <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; width: 100%; text-align: center;">
