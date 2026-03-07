@@ -178,6 +178,9 @@ function renderSSUI() {
         `;
     }).join('');
 
+    // Tell the Sandbox what the answer is
+    window.expectedTestAnswer = current.a;
+        
     qContent.innerHTML = `
         <div style="max-width: 750px; margin: 0 auto; animation: fadeIn 0.5s;">
             <div style="background:#f8fafc; padding:20px; border-radius:12px; border:2px solid #e2e8f0; margin-bottom:25px;">
