@@ -122,6 +122,9 @@ console.log("🚀 skill_unitrates.js is LIVE - Real-World Unit Rates");
 
         document.getElementById('q-title').innerText = `Real-World Unit Rates (Round ${urRound}/${totalUrRounds})`;
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 650px; margin: 0 auto; background:#f8fafc; padding:25px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
                 
