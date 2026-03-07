@@ -94,6 +94,9 @@ console.log("🚀 skill_process5d.js is LIVE - 5-D Process Table");
 
         document.getElementById('q-title').innerText = `The 5-D Process (Round ${p5Round}/${totalP5Rounds})`;
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <style>
                 .t5d { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 15px; }
