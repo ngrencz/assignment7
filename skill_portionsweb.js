@@ -122,6 +122,9 @@ console.log("🚀 skill_portionsweb.js is LIVE - Interactive Picture Web");
             <canvas id="pw-canvas" width="120" height="120" style="cursor:${pointerStyle}; border-radius:50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></canvas>
         `;
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 650px; margin: 0 auto; background:#f8fafc; padding:25px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
                 
