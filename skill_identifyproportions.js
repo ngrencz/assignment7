@@ -97,7 +97,10 @@ console.log("🚀 skill_identifyproportions.js is LIVE - Rigorous Table Analyzer
                 </tr>
             `;
         });
-
+        
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 650px; margin: 0 auto; background:#f8fafc; padding:25px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
                 <p style="font-size: 16px; color: #1e293b; margin-bottom: 20px; text-align: center;">
