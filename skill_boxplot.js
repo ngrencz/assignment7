@@ -1,21 +1,22 @@
 /**
- * skill_boxplot.js - Full Integrated Version (PATCHED)
+ * skill_boxplot.js - Full Integrated Version (HARDENED)
  * Handles: Median, Mean, Range, Q1, and IQR
- * FIXED: Prevented double-click fatal crash on the final question.
- * FIXED: Universal DB routing (works for both 7th and 8th grade databases).
+ * FIXED: Guaranteed transition to next skill via isolated setTimeout.
+ * FIXED: Added 'Enter' key support to prevent perceived freezing.
+ * FIXED: Wrapped checking logic in try/catch emergency escape hatches.
  */
 
 (function() {
     // 1. Private Variables
     let currentBoxData = {};
-    let currentDataset = []; // Sorted (Math)
-    let displayDataset = []; // Shuffled (Display)
+    let currentDataset = []; 
+    let displayDataset = []; 
     let boxErrorCount = 0;
     let boxPlotStep = 0; 
     let boxPlotSessionQuestions = [];
     let sessionCorrectFirstTry = 0; 
 
-    // Smart Database Router (7th grade uses Ch 5, 8th grade uses Ch 7)
+    // Smart Database Router
     function getDbTable() {
         return (window.targetLesson && window.targetLesson.startsWith('5')) ? 'assignment7' : 'assignment';
     }
@@ -112,6 +113,12 @@
             }
             attempts++;
         }
+        
+        // Fallback in case of extreme random generation failure
+        if (!valid) {
+            displayDataset = [12, 4, 18, 6, 22, 10, 20, 2, 8, 14, 16];
+            currentBoxData = { min: 2, q1: 6, median: 12, q3: 18, max: 22, mean: 12 };
+        }
     }
 
     function renderBoxUI() {
@@ -139,8 +146,8 @@
             <div class="card" style="padding: 20px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
                 <p style="font-size: 1.1rem; margin-bottom: 15px;"><strong>Question:</strong> ${current.q}</p>
                 <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
-                    <input type="number" id="box-ans" step="0.1" class="math-input" placeholder="?" style="width: 100px; padding: 10px; font-size:18px; text-align:center; border: 2px solid #cbd5e1; border-radius:6px;">
-                    <button id="bp-submit-btn" onclick="checkStep()" style="background:#1e293b; color:white; border:none; padding:10px 20px; font-size:16px; font-weight:bold; border-radius:6px; cursor:pointer;">Submit</button>
+                    <input type="number" id="box-ans" step="0.1" class="math-input" placeholder="?" onkeydown="if(event.key==='Enter') window.checkStep()" style="width: 100px; padding: 10px; font-size:18px; text-align:center; border: 2px solid #cbd5e1; border-radius:6px;">
+                    <button id="bp-submit-btn" onclick="window.checkStep()" style="background:#1e293b; color:white; border:none; padding:10px 20px; font-size:16px; font-weight:bold; border-radius:6px; cursor:pointer;">Submit</button>
                 </div>
                 <div id="feedback-box" style="margin-top: 15px; display: none; padding: 10px; border-radius: 6px; font-weight:bold;"></div>
             </div>
@@ -162,7 +169,6 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Number Line
         ctx.strokeStyle = "#94a3b8"; 
         ctx.fillStyle = "#64748b";
         ctx.lineWidth = 1;
@@ -199,7 +205,6 @@
         ctx.fillText(currentBoxData.q3, pts.q3, y - 35);
         ctx.fillText(currentBoxData.max, pts.max, y - 35);
 
-        // Whiskers
         ctx.strokeStyle = "#1e293b";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -209,13 +214,11 @@
         ctx.moveTo(pts.max, y - 10); ctx.lineTo(pts.max, y + 10);
         ctx.stroke();
 
-        // Box
         ctx.fillStyle = "#f0fdf4";
         const boxWidth = pts.q3 - pts.q1;
         ctx.fillRect(pts.q1, y - 20, boxWidth, 40);
         ctx.strokeRect(pts.q1, y - 20, boxWidth, 40);
         
-        // Median Line
         ctx.strokeStyle = "#22c55e";
         ctx.lineWidth = 4;
         ctx.beginPath();
@@ -225,66 +228,71 @@
     }
 
     window.checkStep = function() {
-        // Prevent fatal error if they double click during transition
-        if (boxPlotStep >= boxPlotSessionQuestions.length) return;
+        try {
+            if (boxPlotStep >= boxPlotSessionQuestions.length) return;
 
-        const input = document.getElementById('box-ans');
-        const btn = document.getElementById('bp-submit-btn');
-        if(!input) return;
-        
-        const userAns = parseFloat(input.value);
-        const current = boxPlotSessionQuestions[boxPlotStep];
-        const feedback = document.getElementById('feedback-box');
-        
-        if (isNaN(userAns)) return;
-        feedback.style.display = "block";
-
-        if (Math.abs(userAns - current.a) < 0.11) {
-            // Instantly disable button to stop double-click crashes
-            if (btn) btn.disabled = true;
-            input.disabled = true;
-
-            feedback.style.color = "#16a34a";
-            feedback.style.backgroundColor = "#dcfce7";
-            feedback.innerText = "✅ Correct!";
-
-            if (boxErrorCount === 0) sessionCorrectFirstTry++;
-
-            let subAdjustment = (boxErrorCount === 0) ? 1 : 0; 
-            const updateObj = {};
+            const input = document.getElementById('box-ans');
+            const btn = document.getElementById('bp-submit-btn');
             
-            if (!window.userMastery) window.userMastery = {};
-            let currentScore = window.userMastery[current.col] || 0;
-            updateObj[current.col] = Math.min(10, currentScore + subAdjustment);
-            window.userMastery[current.col] = updateObj[current.col]; 
+            if(!input) return;
+            if(btn && btn.disabled) return; // Prevent double-tap freeze
+            
+            const userAns = parseFloat(input.value);
+            const current = boxPlotSessionQuestions[boxPlotStep];
+            const feedback = document.getElementById('feedback-box');
+            
+            if (isNaN(userAns)) return;
+            feedback.style.display = "block";
 
-            const currentHour = sessionStorage.getItem('target_hour') || "00";
-            const dbTable = getDbTable();
+            if (Math.abs(userAns - current.a) < 0.11) {
+                if (btn) btn.disabled = true;
+                input.disabled = true;
 
-            if (window.supabaseClient && window.currentUser) {
-                window.supabaseClient
-                    .from(dbTable)
-                    .update(updateObj)
-                    .eq('userName', window.currentUser)
-                    .eq('hour', currentHour)
-                    .then(({ error }) => {
-                        if (error) console.error("Sub-score update failed:", error);
-                    });
-            }
+                feedback.style.color = "#16a34a";
+                feedback.style.backgroundColor = "#dcfce7";
+                feedback.innerText = "✅ Correct!";
 
-            boxPlotStep++;
-            boxErrorCount = 0;
+                if (boxErrorCount === 0) sessionCorrectFirstTry++;
 
-            if (boxPlotStep >= boxPlotSessionQuestions.length) {
-                setTimeout(finishBoxPlotSession, 800);
+                let subAdjustment = (boxErrorCount === 0) ? 1 : 0; 
+                const updateObj = {};
+                
+                if (!window.userMastery) window.userMastery = {};
+                let currentScore = window.userMastery[current.col] || 0;
+                updateObj[current.col] = Math.min(10, currentScore + subAdjustment);
+                window.userMastery[current.col] = updateObj[current.col]; 
+
+                const currentHour = sessionStorage.getItem('target_hour') || "00";
+                const dbTable = getDbTable();
+
+                if (window.supabaseClient && window.currentUser) {
+                    window.supabaseClient
+                        .from(dbTable)
+                        .update(updateObj)
+                        .eq('userName', window.currentUser)
+                        .eq('hour', currentHour)
+                        .then(({ error }) => {
+                            if (error) console.error("Sub-score update failed:", error);
+                        });
+                }
+
+                boxPlotStep++;
+                boxErrorCount = 0;
+
+                if (boxPlotStep >= boxPlotSessionQuestions.length) {
+                    setTimeout(finishBoxPlotSession, 800);
+                } else {
+                    setTimeout(renderBoxUI, 1000);
+                }
             } else {
-                setTimeout(renderBoxUI, 1000);
+                boxErrorCount++;
+                feedback.style.color = "#dc2626";
+                feedback.style.backgroundColor = "#fee2e2";
+                feedback.innerText = `❌ Not quite. Hint: ${current.hint}`;
             }
-        } else {
-            boxErrorCount++;
-            feedback.style.color = "#dc2626";
-            feedback.style.backgroundColor = "#fee2e2";
-            feedback.innerText = `❌ Not quite. Hint: ${current.hint}`;
+        } catch (err) {
+            console.error("Crash during checkStep:", err);
+            setTimeout(finishBoxPlotSession, 1000); // Emergency Escape
         }
     };
 
@@ -292,39 +300,45 @@
         window.isCurrentQActive = false;
         const qContent = document.getElementById('q-content');
         
-        // Massive UI replacement to completely remove the old buttons
-        qContent.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; animation: fadeIn 0.5s;">
-                <div style="font-size:60px; margin-bottom:15px;">📊</div>
-                <h2 style="color:#1e293b; margin:0 0 10px 0;">Box Plot Set Complete!</h2>
-                <p style="color:#64748b; font-size:16px;">Saving results...</p>
-            </div>
-        `;
-
-        let mainAdjustment = 0;
-        if (sessionCorrectFirstTry === 3) mainAdjustment = 1;
-        else if (sessionCorrectFirstTry <= 1) mainAdjustment = -1;
-
-        if (mainAdjustment !== 0) {
-            const currentMain = window.userMastery?.['BoxPlot'] || 0;
-            const newMain = Math.max(0, Math.min(10, currentMain + mainAdjustment));
-            const currentHour = sessionStorage.getItem('target_hour') || "00";
-            const dbTable = getDbTable();
-
-            if (window.userMastery) window.userMastery['BoxPlot'] = newMain;
-
-            if (window.supabaseClient && window.currentUser) {
-                window.supabaseClient
-                    .from(dbTable)
-                    .update({ 'BoxPlot': newMain })
-                    .eq('userName', window.currentUser)
-                    .eq('hour', currentHour)
-                    .then(({ error }) => {
-                        if (error) console.error("Score update failed:", error);
-                    });
-            }
+        if (qContent) {
+            qContent.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; animation: fadeIn 0.5s;">
+                    <div style="font-size:60px; margin-bottom:15px;">📊</div>
+                    <h2 style="color:#1e293b; margin:0 0 10px 0;">Box Plot Set Complete!</h2>
+                    <p style="color:#64748b; font-size:16px;">Saving results...</p>
+                </div>
+            `;
         }
 
+        try {
+            let mainAdjustment = 0;
+            if (sessionCorrectFirstTry === 3) mainAdjustment = 1;
+            else if (sessionCorrectFirstTry <= 1) mainAdjustment = -1;
+
+            if (mainAdjustment !== 0) {
+                const currentMain = window.userMastery?.['BoxPlot'] || 0;
+                const newMain = Math.max(0, Math.min(10, currentMain + mainAdjustment));
+                const currentHour = sessionStorage.getItem('target_hour') || "00";
+                const dbTable = getDbTable();
+
+                if (window.userMastery) window.userMastery['BoxPlot'] = newMain;
+
+                if (window.supabaseClient && window.currentUser) {
+                    window.supabaseClient
+                        .from(dbTable)
+                        .update({ 'BoxPlot': newMain })
+                        .eq('userName', window.currentUser)
+                        .eq('hour', currentHour)
+                        .then(({ error }) => {
+                            if (error) console.error("Score update failed:", error);
+                        });
+                }
+            }
+        } catch (e) {
+            console.error("Non-fatal error updating DB end of round:", e);
+        }
+
+        // GUARANTEED ESCAPE HATCH (Isolated from any JS errors above)
         setTimeout(() => {
             if (typeof window.loadNextQuestion === 'function') {
                 window.loadNextQuestion();
