@@ -175,6 +175,9 @@ function renderSaUI() {
         `;
     }
 
+    // Tell the Sandbox what the answer is
+    window.expectedTestAnswer = current.a;
+        
     qContent.innerHTML = `
         <div style="display:flex; flex-wrap:wrap; gap:25px; justify-content:center; align-items:flex-start; animation: fadeIn 0.5s;">
             <div style="position:relative; background:white; padding:10px; border-radius:8px; border:1px solid #94a3b8; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
