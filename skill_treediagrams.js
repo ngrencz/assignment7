@@ -98,6 +98,9 @@ console.log("🚀 skill_treediagrams.js is LIVE - Rigorous Tree Diagrams");
         let opt2 = `<option value="">-- ${s.cat2} --</option>` + s.choices2.map(c => `<option value="${c}">${c}</option>`).join('');
         let opt3 = `<option value="">-- ${s.cat3} --</option>` + s.choices3.map(c => `<option value="${c}">${c}</option>`).join('');
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <div style="max-width: 700px; margin: 0 auto; background:#f8fafc; padding:25px; border-radius:12px; border:1px solid #e2e8f0; animation: fadeIn 0.4s;">
                 
