@@ -226,6 +226,9 @@ console.log("🚀 skill_orderofops.js is LIVE - Step-by-Step Evaluator");
         let htmlA = buildProblemHTML(probA, stateA, 'a');
         let htmlB = buildProblemHTML(probB, stateB, 'b');
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <style>
                 .oo-hl { background-color: #fef08a; padding: 2px 4px; border-radius: 4px; border: 1px dashed #eab308; font-weight:bold; }
