@@ -109,6 +109,9 @@ console.log("🚀 skill_expressionmats.js is LIVE - Expression Mats");
         tileHTMLArray.sort(() => 0.5 - Math.random());
         let matHTML = tileHTMLArray.join('');
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <style>
                 .alg-tile { display: flex; align-items: center; justify-content: center; font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; border: 2px solid #334155; box-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
