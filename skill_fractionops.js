@@ -133,6 +133,9 @@ console.log("🚀 skill_fractionops.js is LIVE - Fraction Operations");
 
         document.getElementById('q-title').innerText = `Fraction Operations (Round ${foRound}/${totalFoRounds})`;
 
+        // Tell the Sandbox what the answer is
+        window.expectedTestAnswer = current.a;
+        
         qContent.innerHTML = `
             <style>
                 .frac { display: inline-block; position: relative; vertical-align: middle; letter-spacing: 0.01em; text-align: center; font-size: 0.85em; }
