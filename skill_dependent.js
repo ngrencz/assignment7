@@ -132,6 +132,9 @@ function renderDepUI() {
         </div>
     `).join('');
 
+    
+    // Tell the Sandbox what the answer is
+    window.expectedTestAnswer = current.a;
     qContent.innerHTML = `
         <div style="max-width: 700px; margin: 0 auto; animation: fadeIn 0.5s;">
             <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #e2e8f0; text-align:center; margin-bottom:20px;">
