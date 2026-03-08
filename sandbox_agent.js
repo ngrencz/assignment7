@@ -57,24 +57,55 @@
     });
 
     // Auto-Pilot Logic
+    // Auto-Pilot Logic
     function executeAutoPilotMove(ans) {
         setTimeout(() => {
+            // --- NEW: Complex Multi-Step Object Handler ---
+            if (typeof ans === 'object' && ans !== null && ans.targets) {
+                ans.targets.forEach(t => {
+                    let el = document.getElementById(t.id);
+                    if (el) {
+                        el.value = t.val;
+                        // Fire events so the browser registers the change
+                        el.dispatchEvent(new window.KeyboardEvent('input', {bubbles:true}));
+                        el.dispatchEvent(new window.Event('change', {bubbles:true}));
+                    }
+                });
+                sendToAdmin('info', "🤖 Auto-Pilot executed targeted instructions.");
+                
+                if (ans.btnId) {
+                    let stepBtn = document.getElementById(ans.btnId);
+                    if (stepBtn) {
+                        setTimeout(() => {
+                            stepBtn.click();
+                            sendToAdmin('info', "🤖 Auto-Pilot clicked targeted Check button.");
+                        }, 500);
+                    }
+                }
+                return; // Stop here so it doesn't run the legacy code below
+            }
+
+            // --- LEGACY: Standard Single-Input Handler ---
             const inputs = document.querySelectorAll('input[type="number"], .answer');
             const btns = document.querySelectorAll('button:not([style*="display: none"])');
             
             if(inputs.length > 0) {
                 inputs[0].value = ans;
-                sendToAdmin('info', "🤖 Auto-Pilot typed answer.");
+                sendToAdmin('info', "🤖 Auto-Pilot typed standard answer.");
                 
-                // Look for standard submit button
-                let submitBtn = Array.from(btns).find(b => b.innerText.toLowerCase().includes('submit') || (b.id && b.id.includes('submit')));
+                // Added "check" to the button search to cover more of your modules
+                let submitBtn = Array.from(btns).find(b => 
+                    b.innerText.toLowerCase().includes('submit') || 
+                    b.innerText.toLowerCase().includes('check') || 
+                    (b.id && b.id.includes('submit'))
+                );
+                
                 if (submitBtn) {
                     setTimeout(() => {
                         submitBtn.click();
-                        sendToAdmin('info', "🤖 Auto-Pilot clicked Submit.");
+                        sendToAdmin('info', "🤖 Auto-Pilot clicked Submit/Check.");
                     }, 500);
                 } else {
-                    // Bellringer uses Enter/Input event simulation
                     const ev = new window.KeyboardEvent('input', {bubbles:true});
                     inputs[0].dispatchEvent(ev);
                     sendToAdmin('info', "🤖 Auto-Pilot triggered Enter/Input.");
