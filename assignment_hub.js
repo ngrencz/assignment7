@@ -18,6 +18,7 @@ const timeRequirements = {
 };
 
 // Global State
+window.current = { a: null };
 window.totalSecondsWorked = 0; 
 window.isCurrentQActive = false;
 window.currentQSeconds = 0;
