@@ -279,12 +279,17 @@ async function loadNextQuestion() {
             'PerimeterExpr',
             'Process5D',
             'CompareProb',
-            'FindMissing', // <-- Comma added here
+            'FindMissing', 
             'C5Review'
         ];
 
         // --- FIXED: Standardized the C5Review anchor key ---
         const lessonAnchors = {
+            'Rev1': 'SpinnerFrac',
+            'Rev2': 'MixtureRatio',
+            'Rev3': 'TreeDiagrams',
+            'Rev4': 'IdentifyProportions',
+            'Rev5': 'UnitRates',
             '5.2.1': 'SimplifyExpr',
             '5.2.2': 'Prob522',
             '5.2.3': 'DependentProb',
