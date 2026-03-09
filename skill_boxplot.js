@@ -4,6 +4,7 @@
  * FIXED: Guaranteed transition to next skill via isolated setTimeout.
  * FIXED: Added 'Enter' key support to prevent perceived freezing.
  * FIXED: Wrapped checking logic in try/catch emergency escape hatches.
+ * FIXED: Renamed check function to prevent collisions with other modules.
  */
 
 (function() {
@@ -149,8 +150,8 @@
             <div class="card" style="padding: 20px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
                 <p style="font-size: 1.1rem; margin-bottom: 15px;"><strong>Question:</strong> ${current.q}</p>
                 <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
-                    <input type="number" id="box-ans" step="0.1" class="math-input" placeholder="?" onkeydown="if(event.key==='Enter') window.checkStep()" style="width: 100px; padding: 10px; font-size:18px; text-align:center; border: 2px solid #cbd5e1; border-radius:6px;">
-                    <button id="bp-submit-btn" onclick="window.checkStep()" style="background:#1e293b; color:white; border:none; padding:10px 20px; font-size:16px; font-weight:bold; border-radius:6px; cursor:pointer;">Submit</button>
+                    <input type="number" id="box-ans" step="0.1" class="math-input" placeholder="?" onkeydown="if(event.key==='Enter') window.checkBoxPlotStep()" style="width: 100px; padding: 10px; font-size:18px; text-align:center; border: 2px solid #cbd5e1; border-radius:6px;">
+                    <button id="bp-submit-btn" onclick="window.checkBoxPlotStep()" style="background:#1e293b; color:white; border:none; padding:10px 20px; font-size:16px; font-weight:bold; border-radius:6px; cursor:pointer;">Submit</button>
                 </div>
                 <div id="feedback-box" style="margin-top: 15px; display: none; padding: 10px; border-radius: 6px; font-weight:bold;"></div>
             </div>
@@ -230,7 +231,7 @@
         ctx.stroke();
     }
 
-    window.checkStep = function() {
+    window.checkBoxPlotStep = function() {
         try {
             if (boxPlotStep >= boxPlotSessionQuestions.length) return;
 
@@ -294,7 +295,7 @@
                 feedback.innerText = `❌ Not quite. Hint: ${current.hint}`;
             }
         } catch (err) {
-            console.error("Crash during checkStep:", err);
+            console.error("Crash during checkBoxPlotStep:", err);
             setTimeout(finishBoxPlotSession, 1000); // Emergency Escape
         }
     };
