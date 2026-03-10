@@ -145,14 +145,23 @@
                 const savedLesson = sessionStorage.getItem('pending_lesson') || document.getElementById('lesson-select').value;
 
                 // Query DB to check if they already have an hour locked in
+                // Using maybeSingle() so it doesn't throw an error if the student is totally new
                 const { data: profileData } = await supabaseClient
                     .from('userName')
                     .select('hour')
                     .eq('id', anonymousUUID)
-                    .single();
+                    .maybeSingle();
 
                 if (profileData && profileData.hour) {
                     finalHour = profileData.hour; // Force the DB hour if it exists
+                } else {
+                    // NEW STUDENT: Save their selected hour to the database so it's locked forever
+                    await supabaseClient
+                        .from('userName')
+                        .upsert({ 
+                            id: anonymousUUID, 
+                            hour: finalHour 
+                        });
                 }
 
                 sessionStorage.setItem('target_user', anonymousUUID); 
@@ -175,7 +184,7 @@
                 .from('userName')
                 .select('hour')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
 
             if (profileData && profileData.hour) {
                 const hourSelect = document.getElementById('hour-select');
@@ -193,13 +202,32 @@
     };
 
     async function handleGoogleLogin() {
-        const hour = document.getElementById('hour-select').value; // Still works even if disabled
+        let hour = document.getElementById('hour-select').value; 
         const lesson = document.getElementById('lesson-select').value;
 
         // Check if they are already logged in
         const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session) {
+            // Check the database one more time to make sure they aren't overriding a saved hour
+            const { data: profileData } = await supabaseClient
+                .from('userName')
+                .select('hour')
+                .eq('id', session.user.id)
+                .maybeSingle();
+
+            if (profileData && profileData.hour) {
+                hour = profileData.hour; // Force the DB hour
+            } else {
+                // Save the new student's selected hour to the database
+                await supabaseClient
+                    .from('userName')
+                    .upsert({ 
+                        id: session.user.id, 
+                        hour: hour 
+                    });
+            }
+
             // Instantly send them to the hub with their dropdown choices
             sessionStorage.setItem('target_user', session.user.id); 
             sessionStorage.setItem('current_user', session.user.email); 
