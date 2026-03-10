@@ -35,6 +35,14 @@
         select { width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #cbd5e1; box-sizing: border-box; font-size: 1rem; outline: none;}
         select:focus { border-color: #3b82f6; }
         
+        /* Styling to make it visually obvious when the dropdown is locked */
+        select:disabled {
+            background-color: #e2e8f0;
+            color: #64748b;
+            cursor: not-allowed;
+            border-color: #cbd5e1;
+        }
+        
         /* Google Button Styling */
         .google-btn { 
             width: 100%; 
@@ -124,19 +132,32 @@
             }
         }
 
-        // 2. Did we JUST bounce back from Google? (Google adds a hash to the URL)
+        // 2. Did we JUST bounce back from Google? 
         if (window.location.hash.includes('access_token')) {
             document.getElementById('loading-overlay').style.display = 'flex';
             
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 const anonymousUUID = session.user.id;
-                const savedHour = sessionStorage.getItem('pending_hour') || document.getElementById('hour-select').value;
+                
+                // Default to what they selected, but verify against the database
+                let finalHour = sessionStorage.getItem('pending_hour') || document.getElementById('hour-select').value;
                 const savedLesson = sessionStorage.getItem('pending_lesson') || document.getElementById('lesson-select').value;
+
+                // Query DB to check if they already have an hour locked in
+                const { data: profileData } = await supabaseClient
+                    .from('userName')
+                    .select('hour')
+                    .eq('id', anonymousUUID)
+                    .single();
+
+                if (profileData && profileData.hour) {
+                    finalHour = profileData.hour; // Force the DB hour if it exists
+                }
 
                 sessionStorage.setItem('target_user', anonymousUUID); 
                 sessionStorage.setItem('current_user', session.user.email); 
-                sessionStorage.setItem('target_hour', savedHour);
+                sessionStorage.setItem('target_hour', finalHour);
                 sessionStorage.setItem('target_lesson', savedLesson);
                 sessionStorage.setItem('total_work_time', 0);
                 sessionStorage.removeItem('free_play_mode');
@@ -149,6 +170,19 @@
         // 3. Are they already logged in from a previous day?
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
+            // Fetch user's saved hour from Supabase userName table
+            const { data: profileData } = await supabaseClient
+                .from('userName')
+                .select('hour')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profileData && profileData.hour) {
+                const hourSelect = document.getElementById('hour-select');
+                hourSelect.value = profileData.hour;
+                hourSelect.disabled = true; // Locks the dropdown entirely
+            }
+
             // Change the button so they know they don't have to re-authenticate
             const btn = document.querySelector('.google-btn');
             btn.innerHTML = '🚀 Start Practice (Already Logged In)';
@@ -159,14 +193,14 @@
     };
 
     async function handleGoogleLogin() {
-        const hour = document.getElementById('hour-select').value;
+        const hour = document.getElementById('hour-select').value; // Still works even if disabled
         const lesson = document.getElementById('lesson-select').value;
 
         // Check if they are already logged in
         const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session) {
-            // Instantly send them to the hub with their NEW dropdown choices
+            // Instantly send them to the hub with their dropdown choices
             sessionStorage.setItem('target_user', session.user.id); 
             sessionStorage.setItem('current_user', session.user.email); 
             sessionStorage.setItem('target_hour', hour);
